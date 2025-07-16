@@ -18,51 +18,48 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('✅ 数据库连接成功！'))
     .catch(err => console.error('数据库连接失败:', err));
 
-// --- API 路由 ---
+// --- 公共 API ---
 
-app.get('/', (req, res) => {
-    res.send('欢迎来到我的博客后端API！');
-});
-
-// **修改API 1：获取文章列表 (增加标签筛选功能)**
+// 获取所有已发布的文章列表 (可按标签筛选)
 app.get('/api/posts', async (req, res) => {
     try {
-        // 创建一个查询过滤器
         const filter = { status: 'publish' };
-        
-        // 如果URL查询参数中包含tag，则添加到过滤器中
         if (req.query.tag) {
             filter.tags = req.query.tag;
         }
-
-        const posts = await Post.find(filter) // 使用过滤器进行查询
-                                .sort({ publishDate: -1 })
-                                .populate('comments'); 
+        const posts = await Post.find(filter).sort({ publishDate: -1 }).populate('comments');
         res.json(posts);
     } catch (error) {
         res.status(500).json({ message: '获取文章列表失败', error: error });
     }
 });
 
-// API 2：获取单篇文章详情
+// 获取单篇文章详情
 app.get('/api/posts/:id', async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id)
-                               .populate({
-                                   path: 'comments',
-                                   options: { sort: { 'publishDate': -1 } },
-                                   populate: { path: 'parentComment' }
-                               });
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
+        const post = await Post.findById(req.params.id).populate({
+            path: 'comments',
+            options: { sort: { 'publishDate': -1 } },
+            populate: { path: 'parentComment' }
+        });
+        if (!post) return res.status(404).json({ message: '文章未找到' });
         res.json(post);
     } catch (error) {
         res.status(500).json({ message: '获取单篇文章失败', error: error });
     }
 });
 
-// API 3：创建新评论
+// 获取所有标签
+app.get('/api/tags', async (req, res) => {
+    try {
+        const tags = await Post.distinct('tags');
+        res.json(tags);
+    } catch (error) {
+        res.status(500).json({ message: '获取标签列表失败', error: error });
+    }
+});
+
+// 创建新评论
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -79,7 +76,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     }
 });
 
-// API 4：点赞文章
+// 点赞文章
 app.post('/api/posts/:id/like', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -92,16 +89,71 @@ app.post('/api/posts/:id/like', async (req, res) => {
     }
 });
 
-// **新增API 5：获取所有标签**
-app.get('/api/tags', async (req, res) => {
+
+// --- 后台管理 API ---
+
+// **新增：(后台) 获取所有文章，包括草稿**
+app.get('/api/admin/posts', async (req, res) => {
     try {
-        // 使用 .distinct() 方法获取所有文章中 'tags' 字段的不重复值
-        const tags = await Post.distinct('tags');
-        res.json(tags);
+        const posts = await Post.find().sort({ publishDate: -1 });
+        res.json(posts);
     } catch (error) {
-        res.status(500).json({ message: '获取标签列表失败', error: error });
+        res.status(500).json({ message: '获取所有文章失败', error: error });
     }
 });
+
+// **新增：(后台) 创建一篇新文章**
+app.post('/api/admin/posts', async (req, res) => {
+    try {
+        const { title, content, tags, status } = req.body;
+        const newPost = new Post({
+            title,
+            content,
+            tags: tags.split(',').map(tag => tag.trim()), // 将逗号分隔的字符串转为数组
+            status,
+            publishDate: new Date()
+        });
+        await newPost.save();
+        res.status(201).json(newPost);
+    } catch (error) {
+        res.status(500).json({ message: '创建新文章失败', error: error });
+    }
+});
+
+// **新增：(后台) 更新一篇文章**
+app.put('/api/admin/posts/:id', async (req, res) => {
+    try {
+        const { title, content, tags, status } = req.body;
+        const updatedPost = await Post.findByIdAndUpdate(
+            req.params.id,
+            {
+                title,
+                content,
+                tags: tags.split(',').map(tag => tag.trim()),
+                status
+            },
+            { new: true } // 这个选项保证返回的是更新后的文档
+        );
+        if (!updatedPost) return res.status(404).json({ message: '文章未找到' });
+        res.json(updatedPost);
+    } catch (error) {
+        res.status(500).json({ message: '更新文章失败', error: error });
+    }
+});
+
+// **新增：(后台) 删除一篇文章**
+app.delete('/api/admin/posts/:id', async (req, res) => {
+    try {
+        const deletedPost = await Post.findByIdAndDelete(req.params.id);
+        if (!deletedPost) return res.status(404).json({ message: '文章未找到' });
+        // 同时删除关联的评论 (可选，但推荐)
+        await Comment.deleteMany({ post: deletedPost._id });
+        res.json({ message: '文章及关联评论已成功删除' });
+    } catch (error) {
+        res.status(500).json({ message: '删除文章失败', error: error });
+    }
+});
+
 
 // --- 启动服务器 ---
 app.listen(PORT, () => {
