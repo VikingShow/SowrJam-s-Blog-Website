@@ -4,64 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>后台管理 - 我的代码书卷</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入与前台一致的字体 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* 应用与前台一致的基础样式 */
-        body {
-            font-family: 'Lora', serif;
-            background-color: #fdfdfa;
-            color: #3a3a3a;
-        }
-        .font-code {
-            font-family: 'Source Code Pro', monospace;
-        }
-        .link-style {
-            color: #5a8ab8;
-            text-decoration: none;
-            border-bottom: 1px dotted #a3a3a3;
-            transition: all 0.3s ease;
-        }
-        .link-style:hover {
-            color: #2980b9;
-            border-bottom-color: #2980b9;
-        }
-    </style>
+    <link rel="stylesheet" href="admin.css">
 </head>
-<body class="antialiased">
-
-    <div class="max-w-4xl mx-auto px-4 py-16">
-        <header class="flex justify-between items-center mb-12 border-b border-gray-200 pb-8">
-            <h1 class="text-3xl font-bold font-code text-gray-800">管理面板</h1>
-            <a href="edit.html" class="link-style font-semibold">
-                + 创建新文章
-            </a>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>管理面板</h1>
+            <a href="edit.html" class="btn">+ 创建新文章</a>
         </header>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th class="text-left pb-3 uppercase font-normal font-code text-sm text-gray-500">标题</th>
-                        <th class="text-left pb-3 uppercase font-normal font-code text-sm text-gray-500">状态</th>
-                        <th class="text-left pb-3 uppercase font-normal font-code text-sm text-gray-500">发布日期</th>
-                        <th class="text-left pb-3 uppercase font-normal font-code text-sm text-gray-500">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-posts-table-body" class="text-gray-700">
-                    <!-- 文章列表将由 admin.js 动态加载到这里 -->
-                    <tr>
-                        <td colspan="4" class="text-center py-10 text-gray-500">正在加载文章...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <main>
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>状态</th>
+                            <th>发布日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-posts-table-body">
+                        <tr>
+                            <td colspan="4" class="text-center py-10 text-gray-500">正在加载文章...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
         
-        <footer class="text-center mt-16">
-             <a href="../index.html" class="link-style text-sm">← 返回博客主页</a>
+        <footer class="admin-footer">
+             <a href="../index.html" target="_blank">← 返回博客前台</a>
         </footer>
     </div>
 

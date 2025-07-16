@@ -4,5 +4,5 @@ wordpress_backup_files.tar.gz
 server/package-lock.json
 wordpress_backup_files
 
-node_modules
+server/node_modules/*
 npm-debug.log

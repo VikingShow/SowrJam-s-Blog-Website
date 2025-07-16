@@ -1,0 +1,186 @@
+/* client/admin/admin.css */
+
+/* 1. 基础与字体设置 (与前台统一) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;700&display=swap');
+
+body {
+    font-family: 'Lora', serif;
+    background-color: #f8f7f2; /* 与前台一致的暖米色 */
+    color: #4a4a4a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-sans { font-family: 'Inter', sans-serif; }
+.font-code { font-family: 'Source Code Pro', monospace; }
+
+/* 2. 主布局 */
+.admin-container {
+    max-width: 64rem; /* 1024px, 比前台宽以容纳表格 */
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+/* 3. 头部 */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+.admin-header h1 {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+    color: #1f2937;
+}
+.admin-header .btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    background-color: #1f2937;
+    color: #ffffff;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+}
+.admin-header .btn:hover {
+    background-color: #374151;
+}
+
+/* 4. 表格样式 */
+.admin-table-wrapper {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden; /* 保证圆角生效 */
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.admin-table th, .admin-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.admin-table thead {
+    background-color: #f9fafb;
+}
+.admin-table th {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.admin-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-publish {
+    background-color: #dcfce7;
+    color: #166534;
+}
+.status-draft {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+.action-link {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: #3b82f6; /* 与前台一致的蓝色 */
+    text-decoration: none;
+    margin-right: 1rem;
+}
+.action-link:hover {
+    text-decoration: underline;
+}
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #ef4444; /* 红色用于删除 */
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+}
+.action-btn:hover {
+    text-decoration: underline;
+}
+
+/* 5. 表单样式 (edit.html) */
+.form-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 2.5rem;
+}
+.form-group { margin-bottom: 1.5rem; }
+.form-label {
+    display: block;
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+.form-input, .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.form-actions .btn-cancel {
+    font-family: 'Inter', sans-serif;
+    color: #6b7280;
+    text-decoration: none;
+}
+.form-actions .btn-cancel:hover {
+    text-decoration: underline;
+}
+
+/* 6. 页脚 */
+.admin-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+.admin-footer a {
+    color: #6b7280;
+    text-decoration: none;
+    border-bottom: 1px dotted #9ca3af;
+}
+.admin-footer a:hover {
+    color: #1f2937;
+    border-bottom-color: #1f2937;
+}

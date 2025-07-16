@@ -18,11 +18,18 @@ async function loadAdminPosts() {
         tableBody.innerHTML = '';
         posts.forEach(post => {
             const row = `
-                <tr class="border-b border-gray-200">
-                    <td class="py-4 pr-4">${post.title}</td>
-                    <td class="py-4 pr-4"><span class="font-semibold ${post.status === 'publish' ? 'text-green-600' : 'text-yellow-600'}">${post.status === 'publish' ? '已发布' : '草稿'}</span></td>
-                    <td class="py-4 pr-4">${new Date(post.publishDate).toLocaleDateString()}</td>
-                    <td class="py-4 pr-4"><a href="edit.html?id=${post.id}" class="text-blue-600 hover:underline mr-4">编辑</a><button onclick="handleDeletePost('${post.id}', '${post.title}')" class="text-red-600 hover:underline">删除</button></td>
+                <tr>
+                    <td class="font-semibold">${post.title}</td>
+                    <td>
+                        <span class="status-badge ${post.status === 'publish' ? 'status-publish' : 'status-draft'}">
+                            ${post.status === 'publish' ? '已发布' : '草稿'}
+                        </span>
+                    </td>
+                    <td>${new Date(post.publishDate).toLocaleDateString()}</td>
+                    <td>
+                        <a href="edit.html?id=${post.id}" class="action-link">编辑</a>
+                        <button onclick="handleDeletePost('${post.id}', '${post.title}')" class="action-btn">删除</button>
+                    </td>
                 </tr>
             `;
             tableBody.innerHTML += row;
@@ -79,8 +86,6 @@ async function initializeEditPage() {
         document.getElementById('title').value = post.title;
         easyMDE.value(post.content);
 
-        // **修改：增加了安全检查，确保post.tags是一个数组**
-        // 如果 post.tags 存在并且是一个数组，则正常 join；否则，返回一个空字符串。
         document.getElementById('tags').value = (post.tags && Array.isArray(post.tags)) ? post.tags.join(', ') : '';
         
         document.getElementById('status').value = post.status;
