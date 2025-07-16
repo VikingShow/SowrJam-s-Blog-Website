@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章标题 - BlorJam</title>
+    <title>文章标题 - 我的代码书卷</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +17,6 @@
                 <div class="post-header mb-8 text-center">
                     <h1 id="post-title" class="title font-code">正在加载...</h1>
                     <p id="post-date" class="date mt-4"></p>
-                    <!-- 新增：用于显示标签的容器 -->
                     <div id="post-tags-container" class="post-tags justify-center"></div>
                 </div>
                 <div id="post-content" class="post-content"></div>
@@ -29,27 +28,32 @@
                 </button>
             </div>
 
-            <section id="comments-section" class="comment-section">
-                <h3 class="comment-section-header">评论</h3>
-                <p>正在加载评论...</p>
-            </section>
+            <!-- **修改：为评论区和表单增加包裹元素** -->
+            <div class="comments-and-form-wrapper">
+                <section id="comments-section" class="comment-section">
+                    <h3 class="comment-section-header">评论</h3>
+                    <div id="comments-list">
+                        <p class="font-sans text-gray-500">正在加载评论...</p>
+                    </div>
+                </section>
 
-            <div class="mt-12">
-                <h3 class="comment-section-header">发表评论</h3>
-                <form id="comment-form" class="comment-form">
-                    <div class="form-group">
-                        <label for="comment-author" class="form-label">你的名字:</label>
-                        <input type="text" id="comment-author" name="author" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="comment-content" class="form-label">评论内容:</label>
-                        <textarea id="comment-content" name="content" rows="5" class="form-textarea" required></textarea>
-                    </div>
-                    <div>
-                        <button type="submit" class="form-button">提交评论</button>
-                    </div>
-                </form>
-                <div id="comment-message" class="mt-4 font-sans"></div>
+                <div class="comment-form-wrapper">
+                    <h3 class="comment-section-header">发表评论</h3>
+                    <form id="comment-form" class="comment-form">
+                        <div class="form-group">
+                            <label for="comment-author" class="form-label">你的名字:</label>
+                            <input type="text" id="comment-author" name="author" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-content" class="form-label">评论内容:</label>
+                            <textarea id="comment-content" name="content" rows="5" class="form-textarea" required></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="form-button">提交评论</button>
+                        </div>
+                    </form>
+                    <div id="comment-message" class="mt-4 font-sans"></div>
+                </div>
             </div>
         </main>
 

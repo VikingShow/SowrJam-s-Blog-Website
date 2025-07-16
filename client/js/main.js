@@ -144,36 +144,50 @@ async function handleLikeClick(postId) {
 }
 
 function renderComments(comments) {
-    const commentsContainer = document.getElementById("comments-section");
-    commentsContainer.innerHTML = `<h3 class="comment-section-header">评论 (${comments ? comments.length : 0})</h3>`;
+    const commentsList = document.getElementById("comments-list");
+    const commentsHeader = document.querySelector("#comments-section .comment-section-header");
+    
+    commentsHeader.textContent = `评论 (${comments ? comments.length : 0})`;
+
     if (!comments || comments.length === 0) {
-        commentsContainer.innerHTML += '<p id="no-comment-notice" class="font-sans text-gray-500">暂无评论。</p>';
+        commentsList.innerHTML = '<p id="no-comment-notice" class="font-sans text-gray-500">暂无评论。</p>';
         return;
     }
+
+    commentsList.innerHTML = ''; // 清空加载提示
     comments.forEach(comment => {
         addCommentToDOM(comment);
     });
 }
 
-function addCommentToDOM(comment) {
-    const commentsContainer = document.getElementById("comments-section");
+function addCommentToDOM(comment, isNew = false) {
+    const commentsList = document.getElementById("comments-list");
     const noCommentNotice = document.getElementById("no-comment-notice");
     if (noCommentNotice) {
         noCommentNotice.remove();
     }
-    const commentDate = new Date(comment.publishDate).toLocaleString();
-    const commentHTML = `
-        <div class="comment">
-            <div class="comment-meta mb-2 flex items-center">
-                <strong class="author">${comment.author}</strong>
-                <span class="date ml-3">${commentDate}</span>
-            </div>
-            <div class="comment-body">
-                <p>${comment.content}</p>
-            </div>
+    const commentDate = new Date(comment.publishDate).toLocaleString('zh-CN', { dateStyle: 'medium', timeStyle: 'short' });
+    
+    // **修改：使用更精致的HTML结构**
+    const commentElement = document.createElement('div');
+    commentElement.className = 'comment';
+    commentElement.innerHTML = `
+        <div class="comment-meta">
+            <span class="author">${comment.author}</span>
+            <span class="date">${commentDate}</span>
+        </div>
+        <div class="comment-body">
+            <p>${comment.content}</p>
         </div>
     `;
-    commentsContainer.insertAdjacentHTML("beforeend", commentHTML);
+    
+    if (isNew) {
+        // 如果是新评论，添加到列表顶部
+        commentsList.prepend(commentElement);
+    } else {
+        // 如果是加载的旧评论，追加到列表末尾
+        commentsList.appendChild(commentElement);
+    }
 }
 
 async function handleCommentSubmit(event, postId) {
@@ -184,7 +198,7 @@ async function handleCommentSubmit(event, postId) {
     const messageDiv = document.getElementById("comment-message");
     if (!author.trim() || !content.trim()) {
         messageDiv.textContent = "名字和评论内容都不能为空！";
-        messageDiv.className = "mt-4 text-red-500";
+        messageDiv.className = "mt-4 text-red-500 font-sans";
         return;
     }
     try {
@@ -195,14 +209,14 @@ async function handleCommentSubmit(event, postId) {
         });
         if (!response.ok) throw new Error("提交评论失败");
         const newComment = await response.json();
-        addCommentToDOM(newComment);
+        addCommentToDOM(newComment, true);
         form.reset();
         messageDiv.textContent = "评论成功！";
-        messageDiv.className = "mt-4 text-green-500";
+        messageDiv.className = "mt-4 text-green-500 font-sans";
         setTimeout(() => (messageDiv.textContent = ""), 3000);
     } catch (error) {
         console.error("提交评论时出错:", error);
         messageDiv.textContent = "评论失败，请稍后重试。";
-        messageDiv.className = "mt-4 text-red-500";
+        messageDiv.className = "mt-4 text-red-500 font-sans";
     }
 }
