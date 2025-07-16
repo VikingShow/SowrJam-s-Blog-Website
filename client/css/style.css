@@ -1,110 +1,239 @@
 /* client/css/style.css */
 
 /* 1. 引入字体与动画定义 */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap');
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes typing { from { width: 0 } to { width: 100% } }
-@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #39ff14; } }
-@keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); text-shadow: 2px 2px 0 #ff00ff; }
-  40% { transform: translate(-2px, -2px); text-shadow: -2px -2px 0 #00ffff; }
-  60% { transform: translate(2px, 2px); text-shadow: -2px 2px 0 #ffff00; }
-  80% { transform: translate(2px, -2px); text-shadow: 2px -2px 0 #ff00ff; }
-  100% { transform: translate(0); }
-}
+@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #2563eb; } }
 
 /* 2. 基础与变量设置 */
 :root {
-    --bg-color: #0d1117;
-    --text-color: #c9d1d9;
-    --accent-color: #39ff14; /* 终端绿 */
-    --border-color: #21262d;
-    --link-hover-color: #58a6ff;
+    --bg-color: #f9fafb;
+    --text-color: #374151;
+    --heading-color: #111827;
+    --accent-color: #2563eb;
+    --border-color: #e5e7eb;
+    --surface-color: #ffffff;
 }
 
 body {
-    font-family: 'Fira Code', monospace;
+    font-family: 'Lora', serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    /* 模拟CRT屏幕的扫描线效果 */
-    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 3px, 4px 100%;
-    animation: fadeIn 1s ease-in-out;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
+.font-sans { font-family: 'Inter', sans-serif; }
+.font-code { font-family: 'Source Code Pro', monospace; }
 
 /* 3. 布局与头部 */
 .main-container {
-    max-width: 48rem;
+    max-width: 56rem; /* 896px */
     margin: 0 auto;
     padding: 4rem 1.5rem;
+    animation: fadeIn 0.8s ease-out forwards;
 }
-.blog-header { text-align: center; margin-bottom: 3rem; }
-.blog-header .title-container {
-    display: inline-block;
-    border: 1px solid var(--border-color);
-    padding: 1rem 2rem;
+.blog-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
 }
 .blog-header .title {
     display: inline-block;
-    font-size: 2.25rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 2.5rem;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--heading-color);
     border-right: .15em solid var(--accent-color);
     white-space: nowrap;
     overflow: hidden;
     margin: 0 auto;
-    animation: typing 3s steps(20, end), blink-caret .75s step-end infinite;
+    letter-spacing: 0.05em;
+    animation: typing 2.5s steps(15, end), blink-caret .75s step-end infinite;
 }
-.blog-header .subtitle { margin-top: 1rem; color: #8b949e; font-size: 0.875rem; }
+.blog-header .subtitle {
+    margin-top: 1rem;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
 
-/* 4. 标签与分隔符 */
-.tags-container { text-align: center; margin-bottom: 3rem; }
+/* 4. 标签云 */
+.tags-container {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
 .tag-button {
-    background: none;
+    background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 0.5rem 1rem;
+    color: #4b5563;
+    padding: 0.5rem 1.25rem;
     margin: 0.25rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.tag-button:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+.tag-button.active {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border-color: var(--accent-color);
+}
+
+/* 5. 文章列表 (网格布局) */
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+.post-card {
+    background-color: var(--surface-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+}
+.post-card .cover-image {
+    width: 100%;
+    height: 12rem;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-color);
+}
+.post-card .card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+.post-card .date { font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; }
+.post-card .title { font-size: 1.25rem; font-weight: 700; color: var(--heading-color); margin-bottom: 0.75rem; }
+.post-card .title a { text-decoration: none; color: inherit; }
+.post-card .title a:hover { color: var(--accent-color); }
+.post-card .excerpt { font-size: 1rem; line-height: 1.6; flex-grow: 1; }
+.post-card .read-more { display: inline-block; margin-top: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 600; color: var(--accent-color); text-decoration: none; }
+.post-card .read-more:hover { text-decoration: underline; }
+
+/* 6. 单篇文章页 */
+.post-header .title { font-size: 2.5rem; }
+.post-content { font-size: 1.125rem; line-height: 1.8; }
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 2.5rem auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+.post-content pre { background-color: #1e293b; color: #e2e8f0; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 2rem 0; }
+.post-content code { font-family: 'Fira Code', monospace; }
+.post-content h2, .post-content h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--heading-color); margin-top: 2.5rem; margin-bottom: 1rem; }
+
+/* 7. 点赞与评论区样式 */
+.post-actions {
+    margin-top: 3rem;
+    text-align: center;
+}
+.like-button {
+    background-color: #fee2e2;
+    color: #991b1b;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    border: 1px solid #fecaca;
     cursor: pointer;
     transition: all 0.2s ease;
 }
-.tag-button:hover, .tag-button.active {
-    background-color: var(--accent-color);
-    color: var(--bg-color);
+.like-button:hover {
+    background-color: #fecaca;
+}
+.like-button:disabled {
+    background-color: #e5e7eb;
+    color: #6b7280;
+    cursor: not-allowed;
+    border-color: #d1d5db;
+}
+
+.comment-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+.comment-section-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-bottom: 2rem;
+}
+.comment {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+.comment:last-child {
+    border-bottom: none;
+}
+.comment-meta .author {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+.comment-meta .date {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+.comment-form {
+    background-color: var(--surface-color);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-family: 'Inter', sans-serif; font-weight: 500; margin-bottom: 0.5rem; }
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bg-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-textarea:focus {
+    outline: none;
     border-color: var(--accent-color);
-    text-shadow: 0 0 5px var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
-.separator {
-    text-align: center;
-    color: var(--border-color);
-    margin: 3rem 0;
-    font-size: 1rem;
-    user-select: none;
+.form-button {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.form-button:hover {
+    background-color: #1d4ed8;
 }
 
-/* 5. 文章列表 */
-.post-item { padding-bottom: 3rem; }
-.post-item .date { font-size: 0.875rem; color: #8b949e; margin-bottom: 0.75rem; }
-.post-item .title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
-.post-item .title a { color: var(--text-color); text-decoration: none; transition: color 0.2s; }
-.post-item .title a:hover { color: var(--accent-color); animation: glitch 0.15s linear 3; }
-.post-item .excerpt { color: #8b949e; line-height: 1.7; }
-.post-item .read-more { display: inline-block; margin-top: 1.5rem; color: var(--accent-color); text-decoration: none; }
-.post-item .read-more:hover { text-decoration: underline; }
-
-/* 6. 单篇文章页 */
-.post-header .title { font-size: 2.25rem; }
-.post-content { line-height: 1.8; font-size: 1.125rem; }
-.post-content pre { background-color: #010409; border: 1px solid var(--border-color); padding: 1.5rem; overflow-x: auto; margin: 2rem 0; }
-.post-content code { font-family: 'Fira Code', monospace; }
-
-/* 7. 评论区 */
-.comment-section { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); }
-.comment-form input, .comment-form textarea { background-color: #010409; border: 1px solid var(--border-color); color: var(--text-color); padding: 0.75rem 1rem; width: 100%; }
-.comment-form input:focus, .comment-form textarea:focus { outline: none; border-color: var(--accent-color); }
-.comment-form button { background-color: var(--accent-color); color: var(--bg-color); font-weight: 600; padding: 0.75rem 1.5rem; border: none; cursor: pointer; }
-
-/* 8. 页脚 */
-.blog-footer { text-align: center; margin-top: 4rem; padding-top: 2rem; font-size: 0.875rem; color: #8b949e; }
+/* 8. 页脚样式 */
+.blog-footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); color: #6b7280; font-family: 'Inter', sans-serif; font-size: 0.875rem; }

@@ -3,55 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章标题 - SowrJam :: Log</title>
+    <title>文章标题 - 我的代码书卷</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="main-container">
         <header class="mb-8">
-            <a href="index.html" class="read-more">&lt; 返回所有文章</a>
+            <a href="index.html" class="font-sans font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200">&larr; 返回所有文章</a>
         </header>
 
         <main>
             <article>
-                <div class="post-header mb-8">
-                    <h1 id="post-title" class="title">正在加载...</h1>
-                    <p id="post-date" class="date mt-2"></p>
+                <div class="post-header mb-8 text-center">
+                    <h1 id="post-title" class="title font-code">正在加载...</h1>
+                    <p id="post-date" class="date mt-4"></p>
                 </div>
                 <div id="post-content" class="post-content"></div>
             </article>
 
-            <div class="mt-12 text-center">
-                <button id="like-button" class="tag-button">
-                    [+] 点赞 (<span id="like-count">0</span>)
+            <div class="post-actions">
+                <button id="like-button" class="like-button">
+                    👍 点赞 (<span id="like-count">0</span>)
                 </button>
             </div>
 
             <section id="comments-section" class="comment-section">
-                <p>> 正在加载评论...</p>
+                <h3 class="comment-section-header">评论</h3>
+                <p>正在加载评论...</p>
             </section>
 
-            <div class="mt-12 comment-form">
-                <h3 class="text-xl font-bold mb-6">> 发表评论</h3>
-                <form id="comment-form" class="space-y-4">
-                    <div>
-                        <label for="comment-author" class="block text-sm font-medium mb-1">昵称:</label>
-                        <input type="text" id="comment-author" name="author" required>
+            <div class="mt-12">
+                <h3 class="comment-section-header">发表评论</h3>
+                <form id="comment-form" class="comment-form">
+                    <div class="form-group">
+                        <label for="comment-author" class="form-label">你的名字:</label>
+                        <input type="text" id="comment-author" name="author" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-content" class="form-label">评论内容:</label>
+                        <textarea id="comment-content" name="content" rows="5" class="form-textarea" required></textarea>
                     </div>
                     <div>
-                        <label for="comment-content" class="block text-sm font-medium mb-1">内容:</label>
-                        <textarea id="comment-content" name="content" rows="5" required></textarea>
-                    </div>
-                    <div>
-                        <button type="submit">提交 &gt;</button>
+                        <button type="submit" class="form-button">提交评论</button>
                     </div>
                 </form>
-                <div id="comment-message" class="mt-4"></div>
+                <div id="comment-message" class="mt-4 font-sans"></div>
             </div>
         </main>
 
         <footer class="blog-footer">
-            <p>// (c) 2025 SowrJam. All rights reserved.</p>
+            <p>&copy; 2025 我的代码书卷. All Rights Reserved.</p>
         </footer>
     </div>
     

@@ -1,26 +1,31 @@
 /* client/admin/admin.css */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+/* 1. 引入字体与变量 (与前台统一) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap');
 
 :root {
-    --bg-color: #0d1117;
-    --text-color: #c9d1d9;
-    --accent-color: #39ff14; /* Electric Green */
-    --border-color: #21262d;
-    --surface-color: #161b22;
+    --bg-color: #f9fafb;
+    --text-color: #374151;
+    --heading-color: #111827;
+    --accent-color: #2563eb;
+    --border-color: #e5e7eb;
+    --surface-color: #ffffff;
 }
 
 body {
-    font-family: 'Fira Code', monospace;
+    font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
 }
 
+/* 2. 主布局 */
 .admin-container {
-    max-width: 64rem;
+    max-width: 64rem; /* 1024px */
     margin: 0 auto;
     padding: 3rem 1.5rem;
 }
 
+/* 3. 头部 */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -30,21 +35,37 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 .admin-header h1 {
+    font-family: 'Source Code Pro', monospace;
     font-size: 1.875rem;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--heading-color);
 }
-.admin-header .btn {
-    background-color: var(--accent-color);
-    color: var(--bg-color);
+.btn {
+    display: inline-flex;
+    align-items: center;
     padding: 0.625rem 1.25rem;
-    text-decoration: none;
+    border-radius: 0.375rem;
     font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-primary {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+.btn-primary:hover {
+    background-color: #1d4ed8;
 }
 
+/* 4. 表格样式 */
 .admin-table-wrapper {
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    overflow: hidden;
 }
 .admin-table {
     width: 100%;
@@ -56,32 +77,35 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 .admin-table tbody tr:last-child td { border-bottom: none; }
-.admin-table th { font-size: 0.75rem; font-weight: 600; color: #8b949e; text-transform: uppercase; }
-.admin-table tbody tr { transition: background-color 0.2s; }
-.admin-table tbody tr:hover { background-color: #010409; }
-
-.status-publish { color: #39ff14; }
-.status-draft { color: #f8e71c; }
-
-.action-link { color: var(--accent-color); text-decoration: none; margin-right: 1rem; }
+.admin-table thead { background-color: #f9fafb; }
+.admin-table th { font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+.admin-table tbody tr:hover { background-color: #f9fafb; }
+.status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.status-publish { background-color: #dcfce7; color: #166534; }
+.status-draft { background-color: #fef9c3; color: #854d0e; }
+.action-link { font-weight: 500; color: var(--accent-color); text-decoration: none; margin-right: 1rem; }
 .action-link:hover { text-decoration: underline; }
-.action-btn { background: none; border: none; cursor: pointer; padding: 0; color: #ff4d4d; font-weight: 500; }
+.action-btn { background: none; border: none; cursor: pointer; padding: 0; color: #dc2626; font-weight: 500; }
 .action-btn:hover { text-decoration: underline; }
 
-.form-card { background-color: var(--surface-color); border: 1px solid var(--border-color); padding: 2.5rem; }
+/* 5. 表单样式 (edit.html) */
+.form-card { background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 2.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
 .form-group { margin-bottom: 1.5rem; }
-.form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #8b949e; }
-.form-input, .form-select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); background-color: #010409; color: var(--text-color); }
-.form-input:focus, .form-select:focus { outline: none; border-color: var(--accent-color); }
-.form-actions { margin-top: 2rem; }
+.form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+.form-actions { margin-top: 2rem; display: flex; align-items: center; gap: 1rem; }
+.form-actions .btn-cancel { color: #6b7280; text-decoration: none; }
+.form-actions .btn-cancel:hover { text-decoration: underline; }
 
-.admin-footer { text-align: center; margin-top: 3rem; padding-top: 2rem; font-size: 0.875rem; color: #8b949e; }
-.admin-footer a { color: var(--accent-color); text-decoration: none; }
-.admin-footer a:hover { text-decoration: underline; }
-
-/* EasyMDE adjustments */
-.editor-toolbar, .EasyMDEContainer, .CodeMirror { background-color: var(--surface-color); border-color: var(--border-color) !important; color: var(--text-color); }
-.editor-toolbar a { color: #8b949e !important; }
-.editor-toolbar a.active, .editor-toolbar a:hover { background-color: #010409; border-color: var(--border-color); color: var(--accent-color) !important; }
-.cm-s-easymde .cm-comment { color: #8b949e; }
-.cm-s-easymde .cm-keyword { color: #ff7b72; }
+/* 6. 页脚 */
+.admin-footer { text-align: center; margin-top: 3rem; padding-top: 2rem; font-size: 0.875rem; color: #9ca3af; }
+.admin-footer a { color: #6b7280; text-decoration: none; border-bottom: 1px dotted #9ca3af; }
+.admin-footer a:hover { color: #1f2937; border-bottom-color: #1f2937; }
