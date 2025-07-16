@@ -2,16 +2,31 @@
 
 const { Sequelize } = require('sequelize');
 
-// 创建一个 Sequelize 实例来连接数据库
 const sequelize = new Sequelize(
-    'my_blog',   // 数据库名
-    'blog_user',     // 用户名
-    'sowrjam', // **重要：请将这里替换为你在第2步中设置的真实密码**
+    'my_blog',
+    'blog_user',
+    'sowrjam', // **重要：请将这里替换为你的真实密码**
     {
         host: 'localhost',
-        dialect: 'mysql' // 我们使用 'mysql' 方言来连接 MariaDB
+        dialect: 'mysql'
     }
 );
+
+// **修改：以正确的顺序加载和定义模型**
+const Post = require('./models/post')(sequelize);
+const Comment = require('./models/comment')(sequelize);
+const Tag = require('./models/tag')(sequelize);
+
+// 定义模型间的关系
+Post.hasMany(Comment, { onDelete: 'CASCADE', foreignKey: 'PostId' });
+Comment.belongsTo(Post, { foreignKey: 'PostId' });
+
+Comment.hasMany(Comment, { as: 'replies', foreignKey: 'parentCommentId' });
+Comment.belongsTo(Comment, { as: 'parentComment', foreignKey: 'parentCommentId' });
+
+Post.belongsToMany(Tag, { through: 'PostTags' });
+Tag.belongsToMany(Post, { through: 'PostTags' });
+
 
 // 测试连接
 async function testConnection() {
@@ -25,4 +40,5 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = sequelize;
+// 导出所有模型和sequelize实例
+module.exports = { sequelize, Post, Comment, Tag };

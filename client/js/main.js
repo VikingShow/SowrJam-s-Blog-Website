@@ -31,13 +31,13 @@ async function loadPostsList(tag = null) {
         }
 
         posts.forEach((post) => {
-            // **修改：生成全新的卡片式HTML结构**
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = post.content;
             const snippet = tempDiv.textContent.substring(0, 100) + '...';
             const postDate = new Date(post.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             
-            // 如果有封面图，则使用；否则提供一个优雅的占位符
+            const tagsHtml = (post.Tags || []).map(tag => `<span class="post-tag">${tag.name}</span>`).join('');
+
             const coverImageHtml = post.coverImage 
                 ? `<img src="${post.coverImage}" alt="${post.title}" class="cover-image">`
                 : `<div class="cover-image" style="background-color: #e5e7eb;"></div>`;
@@ -48,6 +48,7 @@ async function loadPostsList(tag = null) {
                     <div class="card-content">
                         <p class="date">${postDate}</p>
                         <h2 class="title"><a href="post.html?id=${post.id}">${post.title}</a></h2>
+                        <div class="post-tags">${tagsHtml}</div>
                         <p class="excerpt">${snippet}</p>
                         <a href="post.html?id=${post.id}" class="read-more">阅读全文 &rarr;</a>
                     </div>
@@ -61,5 +62,147 @@ async function loadPostsList(tag = null) {
     }
 }
 
-// ... (其他JS函数保持不变)
-async function loadTags(){const t=document.getElementById("tags-container");try{const e=await fetch(`${API_BASE_URL}/tags`);if(!e.ok)throw new Error("网络响应错误");const n=await e.json();t.innerHTML="";const o=createTagButton("所有文章",!0);t.appendChild(o),n.forEach(e=>{const n=createTagButton(e);t.appendChild(n)})}catch(e){console.error("获取标签列表失败:",e),t.innerHTML='<p class="text-red-500">加载标签失败。</p>'}}function createTagButton(t,e=!1){const n=document.createElement("button");return n.textContent=t,n.className=`tag-button ${e?"active":""}`,n.addEventListener("click",()=>{document.querySelectorAll(".tag-button").forEach(t=>t.classList.remove("active")),n.classList.add("active"),"所有文章"===t?loadPostsList():loadPostsList(t)}),n}async function loadSinglePost(){const t=new URLSearchParams(window.location.search).get("id");if(!t)return void(document.getElementById("post-content").innerHTML="<p>错误：文章ID未提供。</p>");try{const e=await fetch(`${API_BASE_URL}/posts/${t}`);if(!e.ok)throw new Error("网络响应错误");const n=await e.json();document.title=`${n.title} - 我的代码书卷`,document.getElementById("post-title").textContent=n.title,document.getElementById("post-date").textContent=`发布于 ${new Date(n.publishDate).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})}`,document.getElementById("post-content").innerHTML=n.content;const o=document.getElementById("like-count");o.textContent=n.likes,renderComments(n.Comments);const c=document.getElementById("comment-form");c.addEventListener("submit",e=>handleCommentSubmit(e,t));const d=document.getElementById("like-button");d.addEventListener("click",()=>handleLikeClick(t,d,o))}catch(e){console.error("获取单篇文章失败:",e),document.getElementById("post-content").innerHTML='<p class="text-center text-red-500">加载文章失败，请检查文章ID是否正确，并确保后端服务器正在运行。</p>'}}async function handleLikeClick(t,e,n){if(e.classList.contains("liked"))return;try{const o=await fetch(`${API_BASE_URL}/posts/${t}/like`,{method:"POST"});if(!o.ok)throw new Error("点赞失败");const c=await o.json();n.textContent=c.likes,e.classList.add("liked"),e.disabled=!0}catch(o){console.error("点赞时出错:",o)}}function renderComments(t){const e=document.getElementById("comments-section");if(e.innerHTML=`<h3 class="text-2xl font-bold mb-6 font-sans">评论 (${t?t.length:0})</h3>`,!t||0===t.length)return void(e.innerHTML+='<p id="no-comment-notice" class="text-gray-500 font-sans">暂无评论。</p>');t.forEach(t=>{addCommentToDOM(t)})}function addCommentToDOM(t){const e=document.getElementById("comments-section"),n=document.getElementById("no-comment-notice");n&&n.remove();const o=new Date(t.publishDate).toLocaleString(),c=`\n        <div class="comment">\n            <div class="comment-meta mb-2 flex items-center">\n                <strong class="author">${t.author}</strong>\n                <span class="date ml-3">${o}</span>\n            </div>\n            <div class="comment-body">\n                <p>${t.content}</p>\n            </div>\n        </div>\n    `;e.insertAdjacentHTML("beforeend",c)}async function handleCommentSubmit(t,e){t.preventDefault();const n=t.target,o=n.author.value,c=n.content.value,d=document.getElementById("comment-message");if(!o.trim()||!c.trim())return d.textContent="名字和评论内容都不能为空！",void(d.className="mt-4 text-red-500");try{const t=await fetch(`${API_BASE_URL}/posts/${e}/comments`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({author:o,content:c})});if(!t.ok)throw new Error("提交评论失败");const i=await t.json();addCommentToDOM(i),n.reset(),d.textContent="评论成功！",d.className="mt-4 text-green-500",setTimeout(()=>d.textContent="",3e3)}catch(t){console.error("提交评论时出错:",t),d.textContent="评论失败，请稍后重试。",d.className="mt-4 text-red-500"}}
+async function loadSinglePost() {
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+    if (!postId) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
+        if (!response.ok) throw new Error('网络响应错误');
+        const post = await response.json();
+
+        document.title = `${post.title} - 我的代码书卷`;
+        document.getElementById('post-title').textContent = post.title;
+        document.getElementById('post-date').textContent = `发布于 ${new Date(post.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+        document.getElementById('post-content').innerHTML = post.content;
+        
+        const tagsContainer = document.getElementById('post-tags-container');
+        if (tagsContainer && post.Tags && post.Tags.length > 0) {
+            tagsContainer.innerHTML = (post.Tags || []).map(tag => `<a href="index.html?tag=${encodeURIComponent(tag.name)}" class="post-tag">${tag.name}</a>`).join('');
+        }
+
+        const likeCountSpan = document.getElementById('like-count');
+        likeCountSpan.textContent = post.likes;
+        renderComments(post.Comments);
+        
+        document.getElementById('comment-form').addEventListener('submit', (event) => handleCommentSubmit(event, postId));
+        document.getElementById('like-button').addEventListener('click', () => handleLikeClick(postId));
+
+    } catch (error) {
+        console.error('获取单篇文章失败:', error);
+    }
+}
+
+async function loadTags() {
+    const tagsContainer = document.getElementById("tags-container");
+    try {
+        const response = await fetch(`${API_BASE_URL}/tags`);
+        if (!response.ok) throw new Error("网络响应错误");
+        const tags = await response.json();
+        tagsContainer.innerHTML = "";
+        const allButton = createTagButton("所有文章", true);
+        tagsContainer.appendChild(allButton);
+        tags.forEach(tag => {
+            const tagButton = createTagButton(tag.name);
+            tagsContainer.appendChild(tagButton);
+        });
+    } catch (error) {
+        console.error("获取标签列表失败:", error);
+        tagsContainer.innerHTML = '<p class="text-red-500">加载标签失败。</p>';
+    }
+}
+
+function createTagButton(tagName, isActive = false) {
+    const button = document.createElement("button");
+    button.textContent = tagName;
+    button.className = `tag-button ${isActive ? "active" : ""}`;
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".tag-button").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        if (tagName === "所有文章") {
+            loadPostsList();
+        } else {
+            loadPostsList(tagName);
+        }
+    });
+    return button;
+}
+
+async function handleLikeClick(postId) {
+    const likeButton = document.getElementById("like-button");
+    if (likeButton.disabled) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}/like`, { method: "POST" });
+        if (!response.ok) throw new Error("点赞失败");
+        const updatedPost = await response.json();
+        document.getElementById("like-count").textContent = updatedPost.likes;
+        likeButton.disabled = true;
+    } catch (error) {
+        console.error("点赞时出错:", error);
+    }
+}
+
+function renderComments(comments) {
+    const commentsContainer = document.getElementById("comments-section");
+    commentsContainer.innerHTML = `<h3 class="comment-section-header">评论 (${comments ? comments.length : 0})</h3>`;
+    if (!comments || comments.length === 0) {
+        commentsContainer.innerHTML += '<p id="no-comment-notice" class="font-sans text-gray-500">暂无评论。</p>';
+        return;
+    }
+    comments.forEach(comment => {
+        addCommentToDOM(comment);
+    });
+}
+
+function addCommentToDOM(comment) {
+    const commentsContainer = document.getElementById("comments-section");
+    const noCommentNotice = document.getElementById("no-comment-notice");
+    if (noCommentNotice) {
+        noCommentNotice.remove();
+    }
+    const commentDate = new Date(comment.publishDate).toLocaleString();
+    const commentHTML = `
+        <div class="comment">
+            <div class="comment-meta mb-2 flex items-center">
+                <strong class="author">${comment.author}</strong>
+                <span class="date ml-3">${commentDate}</span>
+            </div>
+            <div class="comment-body">
+                <p>${comment.content}</p>
+            </div>
+        </div>
+    `;
+    commentsContainer.insertAdjacentHTML("beforeend", commentHTML);
+}
+
+async function handleCommentSubmit(event, postId) {
+    event.preventDefault();
+    const form = event.target;
+    const author = form.author.value;
+    const content = form.content.value;
+    const messageDiv = document.getElementById("comment-message");
+    if (!author.trim() || !content.trim()) {
+        messageDiv.textContent = "名字和评论内容都不能为空！";
+        messageDiv.className = "mt-4 text-red-500";
+        return;
+    }
+    try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}/comments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ author, content }),
+        });
+        if (!response.ok) throw new Error("提交评论失败");
+        const newComment = await response.json();
+        addCommentToDOM(newComment);
+        form.reset();
+        messageDiv.textContent = "评论成功！";
+        messageDiv.className = "mt-4 text-green-500";
+        setTimeout(() => (messageDiv.textContent = ""), 3000);
+    } catch (error) {
+        console.error("提交评论时出错:", error);
+        messageDiv.textContent = "评论失败，请稍后重试。";
+        messageDiv.className = "mt-4 text-red-500";
+    }
+}

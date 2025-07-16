@@ -1,194 +1,148 @@
 // server/server.js
 
-// 1. 引入所有需要的模块
 const express = require('express');
 const cors = require('cors');
 const marked = require('marked');
-const sequelize = require('./database'); // 引入我们的数据库连接实例
+const { sequelize, Post, Comment, Tag } = require('./database');
+const { Op } = require('sequelize');
+const path = require('path'); // 引入path模块
+const multer = require('multer'); // 引入multer模块
 
-// 2. 引入数据模型
-const Post = require('./models/post');
-const Comment = require('./models/comment');
-
-// 3. 初始化Express应用
 const app = express();
-const PORT = 3000; // 定义服务器运行的端口
+const PORT = 3000;
 
-// 4. 使用中间件
-app.use(cors()); // 允许跨域请求，方便前后端在不同源下通信
-app.use(express.json()); // 让服务器能解析JSON格式的请求体
+app.use(cors());
+app.use(express.json());
 
-// --- 公共 API (给前台博客展示页面使用) ---
+// --- 图片上传配置 ---
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // 将图片保存到前端可以访问的uploads目录
+        cb(null, path.join(__dirname, '..', 'client', 'uploads'));
+    },
+    filename: function (req, file, cb) {
+        // 创建一个独一无二的文件名，防止重名覆盖
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
-// 获取所有已发布的文章列表 (支持按标签筛选)
+// --- 辅助函数：处理文章的标签关联 ---
+async function handlePostTags(post, tagsString) {
+    if (tagsString === null || tagsString === undefined) return;
+    const tagNames = tagsString.split(',').map(t => t.trim()).filter(Boolean);
+    const tagInstances = [];
+    for (const name of tagNames) {
+        const [tag] = await Tag.findOrCreate({ where: { name } });
+        tagInstances.push(tag);
+    }
+    await post.setTags(tagInstances);
+}
+
+// --- 公共 API ---
 app.get('/api/posts', async (req, res) => {
     try {
         const findOptions = {
             where: { status: 'publish' },
-            order: [['publishDate', 'DESC']]
+            order: [['publishDate', 'DESC']],
+            include: [Tag]
         };
-        // 如果URL查询参数中包含tag，则添加到查询条件中
         if (req.query.tag) {
-            findOptions.where.tags = sequelize.where(
-                sequelize.fn('JSON_CONTAINS', sequelize.col('tags'), `"${req.query.tag}"`),
-                true
-            );
+            findOptions.include = [{ model: Tag, where: { name: req.query.tag } }];
         }
         const posts = await Post.findAll(findOptions);
-        
-        // 在发送给前端前，将Markdown内容转换为HTML
-        const postsWithHtmlContent = posts.map(post => {
+        const postsWithDetails = posts.map(post => {
             const postObject = post.toJSON();
-            postObject.content = marked.parse(postObject.content || '');
-            return postObject;
+            const htmlContent = marked.parse(postObject.content || '');
+            return { ...postObject, content: htmlContent, coverImage: htmlContent.match(/<img.*?src=["'](.*?)["']/)?.[1] || null };
         });
-
-        res.json(postsWithHtmlContent);
-    } catch (error) {
-        res.status(500).json({ message: '获取文章列表失败', error: error.message });
-    }
+        res.json(postsWithDetails);
+    } catch (error) { res.status(500).json({ message: '获取文章列表失败', error: error.message }); }
 });
-
-// 获取单篇文章详情
-app.get('/api/posts/:id', async (req, res) => {
-    try {
-        const post = await Post.findByPk(req.params.id, {
-            include: [{ model: Comment, order: [['publishDate', 'DESC']] }]
-        });
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
-        // 将Markdown内容转换为HTML
-        const postWithHtmlContent = {
-            ...post.toJSON(),
-            content: marked.parse(post.content || '')
-        };
-        res.json(postWithHtmlContent);
-    } catch (error) {
-        res.status(500).json({ message: '获取单篇文章失败', error: error.message });
-    }
-});
-
-// 获取所有不重复的标签列表
-app.get('/api/tags', async (req, res) => {
-    try {
-        const posts = await Post.findAll({ attributes: ['tags'] });
-        const allTags = posts.flatMap(post => post.tags);
-        const uniqueTags = [...new Set(allTags)];
-        res.json(uniqueTags);
-    } catch (error) {
-        res.status(500).json({ message: '获取标签列表失败', error: error.message });
-    }
-});
-
-// 为某篇文章创建新评论
-app.post('/api/posts/:id/comments', async (req, res) => {
-    try {
-        const { author, content } = req.body;
-        const postId = req.params.id;
-        if (!author || !content) {
-            return res.status(400).json({ message: '作者和内容不能为空' });
-        }
-        const newComment = await Comment.create({ author, content, PostId: postId, publishDate: new Date() });
-        res.status(201).json(newComment);
-    } catch (error) {
-        res.status(500).json({ message: '创建评论失败', error: error.message });
-    }
-});
-
-// 点赞某篇文章
-app.post('/api/posts/:id/like', async (req, res) => {
-    try {
-        const post = await Post.findByPk(req.params.id);
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
-        post.likes += 1;
-        await post.save();
-        res.status(200).json(post);
-    } catch (error) {
-        res.status(500).json({ message: '点赞失败', error: error.message });
-    }
-});
+app.get('/api/posts/:id', async (req, res) => { try { const post = await Post.findByPk(req.params.id, { include: [Comment, Tag] }); if (!post) return res.status(404).json({ message: '文章未找到' }); const postWithHtmlContent = { ...post.toJSON(), content: marked.parse(post.content || '') }; res.json(postWithHtmlContent); } catch (error) { res.status(500).json({ message: '获取单篇文章失败', error: error.message }); } });
+app.get('/api/tags', async (req, res) => { try { const tags = await Tag.findAll({ order: [['name', 'ASC']] }); res.json(tags); } catch (error) { res.status(500).json({ message: '获取标签列表失败', error: error.message }); } });
+app.post('/api/posts/:id/comments', async (req, res) => { try { const { author, content } = req.body; const postId = req.params.id; if (!author || !content) return res.status(400).json({ message: '作者和内容不能为空' }); const newComment = await Comment.create({ author, content, PostId: postId, publishDate: new Date() }); res.status(201).json(newComment); } catch (error) { res.status(500).json({ message: '创建评论失败', error: error.message }); } });
+app.post('/api/posts/:id/like', async (req, res) => { try { const post = await Post.findByPk(req.params.id); if (!post) return res.status(404).json({ message: '文章未找到' }); post.likes += 1; await post.save(); res.status(200).json(post); } catch (error) { res.status(500).json({ message: '点赞失败', error: error.message }); } });
 
 // --- 后台管理 API ---
-
-// (后台) 获取所有文章列表，包括草稿
-app.get('/api/admin/posts', async (req, res) => {
-    try {
-        const posts = await Post.findAll({ order: [['publishDate', 'DESC']] });
-        res.json(posts);
-    } catch (error) {
-        res.status(500).json({ message: '获取所有文章失败', error: error.message });
-    }
-});
-
-// (后台) 获取单篇文章的原始数据 (用于编辑)
-app.get('/api/admin/posts/:id', async (req, res) => {
-    try {
-        const post = await Post.findByPk(req.params.id);
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
-        res.json(post);
-    } catch (error) {
-        res.status(500).json({ message: '获取单篇原始文章失败', error: error.message });
-    }
-});
-
-// (后台) 创建一篇新文章
+app.get('/api/admin/posts', async (req, res) => { try { const posts = await Post.findAll({ include: [Tag], order: [['publishDate', 'DESC']] }); res.json(posts); } catch (error) { res.status(500).json({ message: '获取所有文章失败', error: error.message }); } });
+app.get('/api/admin/posts/:id', async (req, res) => { try { const post = await Post.findByPk(req.params.id, { include: [Tag] }); if (!post) return res.status(404).json({ message: '文章未找到' }); res.json(post); } catch (error) { res.status(500).json({ message: '获取单篇原始文章失败', error: error.message }); } });
 app.post('/api/admin/posts', async (req, res) => {
     try {
         const { title, content, tags, status } = req.body;
-        const newPost = await Post.create({
-            title,
-            content,
-            tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-            status,
-            publishDate: new Date()
-        });
+        const newPost = await Post.create({ title, content, status, publishDate: new Date() });
+        await handlePostTags(newPost, tags);
         res.status(201).json(newPost);
-    } catch (error) {
-        res.status(500).json({ message: '创建新文章失败', error: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: '创建新文章失败', error: error.message }); }
 });
-
-// (后台) 更新一篇文章
 app.put('/api/admin/posts/:id', async (req, res) => {
     try {
         const { title, content, tags, status } = req.body;
         const post = await Post.findByPk(req.params.id);
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
-        await post.update({
-            title,
-            content,
-            tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-            status
-        });
+        if (!post) return res.status(404).json({ message: '文章未找到' });
+        await post.update({ title, content, status });
+        await handlePostTags(post, tags);
         res.json(post);
+    } catch (error) { res.status(500).json({ message: '更新文章失败', error: error.message }); }
+});
+app.delete('/api/admin/posts/:id', async (req, res) => { try { const post = await Post.findByPk(req.params.id); if (!post) return res.status(404).json({ message: '文章未找到' }); await post.destroy(); res.json({ message: '文章已成功删除' }); } catch (error) { res.status(500).json({ message: '删除文章失败', error: error.message }); } });
+
+// (后台) 标签管理API
+app.get('/api/admin/tags', async (req, res) => { try { const tags = await Tag.findAll({ order: [['name', 'ASC']] }); res.json(tags); } catch (error) { res.status(500).json({ message: '获取标签列表失败', error: error.message }); } });
+app.post('/api/admin/tags', async (req, res) => { try { const { name } = req.body; if (!name) return res.status(400).json({ message: '标签名不能为空' }); const [tag, created] = await Tag.findOrCreate({ where: { name: name.trim() } }); res.status(created ? 201 : 200).json(tag); } catch (error) { res.status(500).json({ message: '创建标签失败', error: error.message }); } });
+
+// **修改：重写标签更新逻辑，使其更健壮**
+app.put('/api/admin/tags/:id', async (req, res) => {
+    const { name: newName } = req.body;
+    const { id: tagId } = req.params;
+    if (!newName || newName.trim() === '') {
+        return res.status(400).json({ message: '新标签名不能为空' });
+    }
+    try {
+        const tagToUpdate = await Tag.findByPk(tagId);
+        if (!tagToUpdate) return res.status(404).json({ message: '标签未找到' });
+        
+        const existingTag = await Tag.findOne({ where: { name: newName.trim() } });
+        
+        if (existingTag && existingTag.id !== tagToUpdate.id) {
+            const posts = await tagToUpdate.getPosts();
+            if (posts.length > 0) {
+                await existingTag.addPosts(posts);
+            }
+            await tagToUpdate.destroy();
+        } else {
+            await tagToUpdate.update({ name: newName.trim() });
+        }
+        
+        res.json({ message: `标签已成功更新` });
     } catch (error) {
-        res.status(500).json({ message: '更新文章失败', error: error.message });
+        res.status(500).json({ message: '更新标签失败', error: error.message });
     }
 });
 
-// (后台) 删除一篇文章
-app.delete('/api/admin/posts/:id', async (req, res) => {
+// **修改：重写标签删除逻辑，使其更健壮**
+app.delete('/api/admin/tags/:id', async (req, res) => {
     try {
-        const post = await Post.findByPk(req.params.id);
-        if (!post) {
-            return res.status(404).json({ message: '文章未找到' });
-        }
-        await post.destroy(); // Sequelize的级联删除会处理关联的评论
-        res.json({ message: '文章及关联评论已成功删除' });
+        const tagToDelete = await Tag.findByPk(req.params.id);
+        if (!tagToDelete) return res.status(404).json({ message: '标签未找到' });
+        await tagToDelete.destroy(); // 关联关系会在中间表中自动被删除
+        res.json({ message: `标签 '${tagToDelete.name}' 已成功删除` });
     } catch (error) {
-        res.status(500).json({ message: '删除文章失败', error: error.message });
+        res.status(500).json({ message: '删除标签失败', error: error.message });
     }
+});
+
+// **新增：(后台) 图片上传API**
+app.post('/api/admin/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: '没有上传文件' });
+    }
+    // 返回可公开访问的图片URL
+    res.json({ url: `/uploads/${req.file.filename}` });
 });
 
 // --- 启动服务器 ---
-// 首先同步所有模型到数据库，然后启动服务器
 sequelize.sync().then(() => {
     app.listen(PORT, () => {
         console.log(`🚀 服务器正在 http://localhost:${PORT} 上运行`);

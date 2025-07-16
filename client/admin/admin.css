@@ -19,26 +19,76 @@ body {
 }
 
 /* 2. 主布局 */
-.admin-container {
-    max-width: 64rem; /* 1024px */
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* 3. 头部 */
-.admin-header {
+/* 3. 侧边栏导航 */
+.admin-sidebar {
+    width: 260px;
+    background-color: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+.admin-sidebar .logo {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 3rem;
+}
+.admin-sidebar nav a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    color: #4b5563;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+}
+.admin-sidebar nav a:hover {
+    background-color: #f3f4f6;
+    color: var(--heading-color);
+}
+.admin-sidebar nav a.active {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+.admin-sidebar .footer {
+    margin-top: auto;
+    text-align: center;
+    font-size: 0.875rem;
+}
+.admin-sidebar .footer a {
+    color: #6b7280;
+    text-decoration: none;
+}
+.admin-sidebar .footer a:hover {
+    text-decoration: underline;
+}
+
+/* 4. 主内容区 */
+.admin-main {
+    flex-grow: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+}
+.admin-main header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 2rem;
-    margin-bottom: 2.5rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
 }
-.admin-header h1 {
-    font-family: 'Source Code Pro', monospace;
+.admin-main header h1 {
+    font-family: 'Lora', serif;
     font-size: 1.875rem;
-    font-weight: 600;
-    color: var(--heading-color);
+    font-weight: 700;
 }
 .btn {
     display: inline-flex;
@@ -59,13 +109,13 @@ body {
     background-color: #1d4ed8;
 }
 
-/* 4. 表格样式 */
-.admin-table-wrapper {
+/* 5. 卡片与表格样式 */
+.card {
     background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
     border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    padding: 2rem;
 }
 .admin-table {
     width: 100%;
@@ -88,8 +138,7 @@ body {
 .action-btn { background: none; border: none; cursor: pointer; padding: 0; color: #dc2626; font-weight: 500; }
 .action-btn:hover { text-decoration: underline; }
 
-/* 5. 表单样式 (edit.html) */
-.form-card { background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 2.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+/* 6. 表单样式 */
 .form-group { margin-bottom: 1.5rem; }
 .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
 .form-input, .form-select, .form-textarea {
@@ -104,8 +153,3 @@ body {
 .form-actions { margin-top: 2rem; display: flex; align-items: center; gap: 1rem; }
 .form-actions .btn-cancel { color: #6b7280; text-decoration: none; }
 .form-actions .btn-cancel:hover { text-decoration: underline; }
-
-/* 6. 页脚 */
-.admin-footer { text-align: center; margin-top: 3rem; padding-top: 2rem; font-size: 0.875rem; color: #9ca3af; }
-.admin-footer a { color: #6b7280; text-decoration: none; border-bottom: 1px dotted #9ca3af; }
-.admin-footer a:hover { color: #1f2937; border-bottom-color: #1f2937; }
