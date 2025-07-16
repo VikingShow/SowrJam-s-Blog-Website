@@ -4,69 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章标题 - 我的代码书卷</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Google字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入我们自己的样式文件 -->
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body{font-family:'Lora',serif;background-color:#fdfdfa;color:#3a3a3a}.font-code{font-family:'Source Code Pro',monospace}.article-title{color:#2c3e50}.article-body{color:#34495e;font-size:1.125rem;line-height:1.8}.article-body h3{font-size:1.5rem;font-weight:700;margin-top:2.5rem;margin-bottom:1rem;color:#2c3e50}.article-body ul{list-style-type:square;padding-left:1.5rem;margin-bottom:1.5rem}.link-style{color:#5a8ab8;text-decoration:none;border-bottom:1px dotted #a3a3a3;transition:all .3s ease}.link-style:hover{color:#2980b9;border-bottom-color:#2980b9}pre{background-color:#f4f4f4;border:1px solid #e1e1e1;border-radius:8px;padding:1rem;overflow-x:auto;margin:1.5rem 0;box-shadow:0 2px 4px rgba(0,0,0,.05)}code{font-family:'Source Code Pro',monospace;font-size:.9em;color:#3d3d3d}
-        #like-button.liked { background-color: #a0aec0; cursor: not-allowed; }
-    </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <div class="max-w-3xl mx-auto px-4 py-16">
-        <header class="mb-12">
-            <a href="index.html" class="link-style text-lg">&larr; 返回主页</a>
+    <div class="main-container">
+        <header class="mb-8">
+            <a href="index.html" class="font-sans font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200">&larr; 返回所有文章</a>
         </header>
 
         <main>
             <article>
-                <div class="mb-8">
-                    <h1 id="post-title" class="text-4xl font-bold mb-4 article-title">正在加载...</h1>
-                    <p id="post-date" class="text-gray-500 text-sm"></p>
+                <div class="post-header mb-8">
+                    <h1 id="post-title" class="title font-code">正在加载...</h1>
+                    <p id="post-date" class="date mt-2"></p>
                 </div>
-                <div id="post-content" class="article-body"></div>
+                <div id="post-content" class="post-content"></div>
             </article>
 
-            <!-- 新增：点赞区域 -->
+            <!-- 点赞区域 -->
             <div class="mt-12 text-center">
-                <button id="like-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition-transform duration-200 transform hover:scale-105">
+                <button id="like-button" class="bg-red-500 hover:bg-red-600 text-white font-sans font-bold py-3 px-6 rounded-full transition-transform duration-200 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed">
                     👍 点赞 (<span id="like-count">0</span>)
                 </button>
             </div>
 
-            <div class="my-12 border-t border-gray-200"></div>
-
-            <section id="comments-section">
-                <p class="text-gray-500">正在加载评论...</p>
+            <!-- 评论区 -->
+            <section id="comments-section" class="comment-section">
+                <p>正在加载评论...</p>
             </section>
 
+            <!-- 评论表单 -->
             <div class="mt-12">
-                <h3 class="text-2xl font-bold mb-6 article-title font-code">发表评论</h3>
-                <form id="comment-form">
-                    <div class="mb-4">
-                        <label for="comment-author" class="block text-gray-700 text-sm font-bold mb-2">你的名字:</label>
-                        <input type="text" id="comment-author" name="author" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <h3 class="text-2xl font-bold mb-6 font-sans">发表评论</h3>
+                <form id="comment-form" class="comment-form space-y-4">
+                    <div>
+                        <label for="comment-author" class="block text-sm font-medium text-gray-700 mb-1">你的名字:</label>
+                        <input type="text" id="comment-author" name="author" required>
                     </div>
-                    <div class="mb-6">
-                        <label for="comment-content" class="block text-gray-700 text-sm font-bold mb-2">评论内容:</label>
-                        <textarea id="comment-content" name="content" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+                    <div>
+                        <label for="comment-content" class="block text-sm font-medium text-gray-700 mb-1">评论内容:</label>
+                        <textarea id="comment-content" name="content" rows="5" required></textarea>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                            提交评论
-                        </button>
+                    <div>
+                        <button type="submit">提交评论</button>
                     </div>
                 </form>
                 <div id="comment-message" class="mt-4"></div>
             </div>
-
         </main>
 
-        <footer class="text-center text-gray-400 mt-20 font-code">
-            <p>// &copy; 2025 My Code Log.</p>
+        <footer class="blog-footer">
+            <p>&copy; 2025 我的代码书卷. All Rights Reserved.</p>
         </footer>
     </div>
     

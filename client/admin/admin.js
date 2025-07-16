@@ -1,6 +1,6 @@
 // client/admin/admin.js
 
-const API_BASE_URL = 'http://localhost:3000/api/admin';
+const API_BASE_URL = '/api/admin';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('admin-posts-table-body')) {
@@ -22,7 +22,7 @@ async function loadAdminPosts() {
                     <td class="py-4 pr-4">${post.title}</td>
                     <td class="py-4 pr-4"><span class="font-semibold ${post.status === 'publish' ? 'text-green-600' : 'text-yellow-600'}">${post.status === 'publish' ? '已发布' : '草稿'}</span></td>
                     <td class="py-4 pr-4">${new Date(post.publishDate).toLocaleDateString()}</td>
-                    <td class="py-4 pr-4"><a href="edit.html?id=${post._id}" class="text-blue-600 hover:underline mr-4">编辑</a><button onclick="handleDeletePost('${post._id}', '${post.title}')" class="text-red-600 hover:underline">删除</button></td>
+                    <td class="py-4 pr-4"><a href="edit.html?id=${post.id}" class="text-blue-600 hover:underline mr-4">编辑</a><button onclick="handleDeletePost('${post.id}', '${post.title}')" class="text-red-600 hover:underline">删除</button></td>
                 </tr>
             `;
             tableBody.innerHTML += row;
@@ -69,17 +69,20 @@ async function initializeEditPage() {
     if (postId) {
         document.getElementById('edit-page-title').textContent = '编辑文章';
         
-        // **修改：确保我们调用的是后台专用的获取单篇文章的API**
         const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
         if (!response.ok) {
             throw new Error(`获取文章失败: ${response.statusText}`);
         }
         const post = await response.json();
         
-        document.getElementById('post-id').value = post._id;
+        document.getElementById('post-id').value = post.id;
         document.getElementById('title').value = post.title;
         easyMDE.value(post.content);
-        document.getElementById('tags').value = post.tags.join(', ');
+
+        // **修改：增加了安全检查，确保post.tags是一个数组**
+        // 如果 post.tags 存在并且是一个数组，则正常 join；否则，返回一个空字符串。
+        document.getElementById('tags').value = (post.tags && Array.isArray(post.tags)) ? post.tags.join(', ') : '';
+        
         document.getElementById('status').value = post.status;
     }
 

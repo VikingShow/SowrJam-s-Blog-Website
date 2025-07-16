@@ -1,9 +1,17 @@
 {
+  "name": "my-blog-server",
+  "version": "1.0.0",
+  "description": "Backend for my blog",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "marked": "^16.0.0",
-    "mongoose": "^8.16.3",
+    "express": "^4.19.2",
+    "marked": "^5.1.2",
+    "mysql2": "^3.10.0",
+    "sequelize": "^6.37.3",
     "turndown": "^7.2.0",
     "xml2js": "^0.6.2"
   }

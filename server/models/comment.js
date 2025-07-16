@@ -1,18 +1,40 @@
 // server/models/comment.js
 
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { DataTypes } = require('sequelize');
+const sequelize = require('../database');
+const Post = require('./post');
 
-// 定义评论的数据结构
-const CommentSchema = new Schema({
-    post: { type: Schema.Types.ObjectId, ref: 'Post', required: true }, // 关联的文章ID
-    author: { type: String, required: true }, // 评论作者
-    authorEmail: { type: String }, // 作者邮箱
-    content: { type: String, required: true }, // 评论内容
-    publishDate: { type: Date, default: Date.now }, // 发布日期
-    parentComment: { type: Schema.Types.ObjectId, ref: 'Comment', default: null }, // 父评论ID (用于实现楼中楼回复)
-    wpCommentId: { type: Number, unique: true }, // 从WordPress导入的旧ID
-    wpParentId: { type: Number, default: 0 } // 从WordPress导入的父评论ID
+const Comment = sequelize.define('Comment', {
+    author: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    authorEmail: {
+        type: DataTypes.STRING
+    },
+    content: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    publishDate: {
+        type: DataTypes.DATE
+    },
+    wpCommentId: {
+        type: DataTypes.INTEGER,
+        unique: true
+    },
+    wpParentId: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    }
 });
 
-module.exports = mongoose.model('Comment', CommentSchema);
+// 定义模型间的关系
+Post.hasMany(Comment, { onDelete: 'CASCADE' }); // 如果文章删除，关联的评论也删除
+Comment.belongsTo(Post);
+
+Comment.hasMany(Comment, { as: 'replies', foreignKey: 'parentCommentId' });
+Comment.belongsTo(Comment, { as: 'parentComment', foreignKey: 'parentCommentId' });
+
+
+module.exports = Comment;

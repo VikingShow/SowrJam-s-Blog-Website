@@ -1,19 +1,36 @@
 // server/models/post.js
 
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { DataTypes } = require('sequelize');
+const sequelize = require('../database');
 
-// 定义文章的数据结构
-const PostSchema = new Schema({
-    title: { type: String, required: true }, // 标题
-    content: { type: String, required: true }, // 内容 (HTML格式)
-    author: { type: String, default: 'Sowr Jam' }, // 作者
-    tags: [String], // 标签数组
-    likes: { type: Number, default: 0 }, // 点赞数
-    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }], // 关联的评论
-    status: { type: String, enum: ['publish', 'draft'], default: 'publish' }, // 文章状态
-    publishDate: { type: Date, default: Date.now }, // 发布日期
-    wpPostId: { type: Number, unique: true } // 从WordPress导入的旧ID，用于关联评论
+const Post = sequelize.define('Post', {
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    content: {
+        type: DataTypes.TEXT('long'), // 使用长文本类型存储Markdown
+        allowNull: false
+    },
+    tags: {
+        type: DataTypes.JSON, // 使用JSON类型存储标签数组
+        defaultValue: []
+    },
+    likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    status: {
+        type: DataTypes.ENUM('publish', 'draft'),
+        defaultValue: 'publish'
+    },
+    publishDate: {
+        type: DataTypes.DATE
+    },
+    wpPostId: {
+        type: DataTypes.INTEGER,
+        unique: true
+    }
 });
 
-module.exports = mongoose.model('Post', PostSchema);
+module.exports = Post;
