@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的代码书卷</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body{font-family:'Lora',serif;background-color:#fdfdfa;color:#3a3a3a}.font-code{font-family:'Source Code Pro',monospace}.article-title{color:#2c3e50}.article-body{color:#34495e}.link-style{color:#5a8ab8;text-decoration:none;border-bottom:1px dotted #a3a3a3;transition:all .3s ease}.link-style:hover{color:#2980b9;border-bottom-color:#2980b9}pre{background-color:#f4f4f4;border:1px solid #e1e1e1;border-radius:8px;padding:1rem;overflow-x:auto;margin:1.5rem 0;box-shadow:0 2px 4px rgba(0,0,0,.05)}code{font-family:'Source Code Pro',monospace;font-size:.9em;color:#3d3d3d}.article-separator{text-align:center;color:#ccc;margin:3rem 0;font-family:'Source Code Pro',monospace}
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-3xl mx-auto px-4 py-16">
+        <header class="text-center mb-20">
+            <h1 class="text-4xl font-bold article-title font-code tracking-wider">My Code Log</h1>
+            <p class="text-gray-500 mt-2 italic">A Record of Code, Design & Life.</p>
+        </header>
+
+        <!-- 文章列表将由JavaScript动态加载到这里 -->
+        <main id="posts-list">
+            <p class="text-center text-gray-500">正在连接服务器...</p>
+        </main>
+
+        <footer class="text-center text-gray-400 mt-20 font-code">
+            <p>// &copy; 2025 My Code Log.</p>
+        </footer>
+    </div>
+
+    <!-- 只引入我们自己的JavaScript文件 -->
+    <script src="js/main.js"></script>
+</body>
+</html>
