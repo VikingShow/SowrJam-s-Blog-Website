@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         body{font-family:'Lora',serif;background-color:#fdfdfa;color:#3a3a3a}.font-code{font-family:'Source Code Pro',monospace}.article-title{color:#2c3e50}.article-body{color:#34495e;font-size:1.125rem;line-height:1.8}.article-body h3{font-size:1.5rem;font-weight:700;margin-top:2.5rem;margin-bottom:1rem;color:#2c3e50}.article-body ul{list-style-type:square;padding-left:1.5rem;margin-bottom:1.5rem}.link-style{color:#5a8ab8;text-decoration:none;border-bottom:1px dotted #a3a3a3;transition:all .3s ease}.link-style:hover{color:#2980b9;border-bottom-color:#2980b9}pre{background-color:#f4f4f4;border:1px solid #e1e1e1;border-radius:8px;padding:1rem;overflow-x:auto;margin:1.5rem 0;box-shadow:0 2px 4px rgba(0,0,0,.05)}code{font-family:'Source Code Pro',monospace;font-size:.9em;color:#3d3d3d}
+        #like-button.liked { background-color: #a0aec0; cursor: not-allowed; }
     </style>
 </head>
 <body class="antialiased">
@@ -29,14 +30,19 @@
                 <div id="post-content" class="article-body"></div>
             </article>
 
-            <div class="my-16 border-t border-gray-200"></div>
+            <!-- 新增：点赞区域 -->
+            <div class="mt-12 text-center">
+                <button id="like-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition-transform duration-200 transform hover:scale-105">
+                    👍 点赞 (<span id="like-count">0</span>)
+                </button>
+            </div>
 
-            <!-- 评论区 -->
+            <div class="my-12 border-t border-gray-200"></div>
+
             <section id="comments-section">
                 <p class="text-gray-500">正在加载评论...</p>
             </section>
 
-            <!-- 新增：评论表单 -->
             <div class="mt-12">
                 <h3 class="text-2xl font-bold mb-6 article-title font-code">发表评论</h3>
                 <form id="comment-form">

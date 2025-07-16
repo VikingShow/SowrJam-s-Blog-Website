@@ -61,15 +61,53 @@ async function loadSinglePost() {
         document.getElementById('post-title').textContent = post.title;
         document.getElementById('post-date').textContent = `发布于 ${new Date(post.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
         document.getElementById('post-content').innerHTML = post.content;
+        
+        // **更新：初始化点赞按钮**
+        const likeCountSpan = document.getElementById('like-count');
+        likeCountSpan.textContent = post.likes;
+
         renderComments(post.comments);
         
-        // **新增：为评论表单添加提交事件监听器**
         const commentForm = document.getElementById('comment-form');
         commentForm.addEventListener('submit', (event) => handleCommentSubmit(event, postId));
+
+        // **新增：为点赞按钮添加事件监听器**
+        const likeButton = document.getElementById('like-button');
+        likeButton.addEventListener('click', () => handleLikeClick(postId, likeButton, likeCountSpan));
 
     } catch (error) {
         console.error('获取单篇文章失败:', error);
         document.getElementById('post-content').innerHTML = '<p class="text-center text-red-500">加载文章失败，请检查文章ID是否正确，并确保后端服务器正在运行。</p>';
+    }
+}
+
+// **新增：处理点赞点击的函数**
+async function handleLikeClick(postId, button, countSpan) {
+    // 防止重复点击
+    if (button.classList.contains('liked')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}/like`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            throw new Error('点赞失败');
+        }
+
+        const updatedPost = await response.json();
+        
+        // 更新页面上的点赞数
+        countSpan.textContent = updatedPost.likes;
+        
+        // 禁用按钮并改变样式，表示已点赞
+        button.classList.add('liked');
+        button.disabled = true;
+
+    } catch (error) {
+        console.error('点赞时出错:', error);
     }
 }
 
@@ -81,13 +119,13 @@ function renderComments(comments) {
         commentsContainer.innerHTML += '<p id="no-comment-notice" class="text-gray-500">暂无评论。</p>';
         return;
     }
-
-    comments.forEach(comment => {
+    
+    // 倒序显示评论，最新的在最前面
+    comments.reverse().forEach(comment => {
         addCommentToDOM(comment);
     });
 }
 
-// **新增：将单个评论添加到页面的函数**
 function addCommentToDOM(comment, isNew = false) {
     const commentsContainer = document.getElementById('comments-section');
     const noCommentNotice = document.getElementById('no-comment-notice');
@@ -108,19 +146,12 @@ function addCommentToDOM(comment, isNew = false) {
         </div>
     `;
 
-    if (isNew) {
-        // 如果是新评论，插入到标题下方
-        commentsContainer.insertAdjacentHTML('beforeend', commentHTML);
-    } else {
-        // 如果是加载的旧评论，追加到末尾
-        commentsContainer.innerHTML += commentHTML;
-    }
+    const commentsTitle = commentsContainer.querySelector('h3');
+    commentsTitle.after(new DOMParser().parseFromString(commentHTML, 'text/html').body.firstChild);
 }
 
-// **新增：处理评论提交的函数**
 async function handleCommentSubmit(event, postId) {
-    event.preventDefault(); // 阻止表单默认的页面刷新行为
-
+    event.preventDefault(); 
     const form = event.target;
     const author = form.author.value;
     const content = form.content.value;
@@ -135,22 +166,14 @@ async function handleCommentSubmit(event, postId) {
     try {
         const response = await fetch(`${API_BASE_URL}/posts/${postId}/comments`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ author, content }),
         });
 
-        if (!response.ok) {
-            throw new Error('提交评论失败');
-        }
+        if (!response.ok) throw new Error('提交评论失败');
 
         const newComment = await response.json();
-        
-        // 实时将新评论添加到页面
         addCommentToDOM(newComment, true);
-
-        // 清空表单并显示成功消息
         form.reset();
         messageDiv.textContent = '评论成功！';
         messageDiv.className = 'mt-4 text-green-500';

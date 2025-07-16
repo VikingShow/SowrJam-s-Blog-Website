@@ -15,7 +15,7 @@ const PORT = 3000;
 
 // 3. 配置中间件
 app.use(cors());
-app.use(express.json()); // **非常重要**：让服务器能解析JSON格式的请求体
+app.use(express.json());
 
 // 4. 连接到MongoDB数据库
 const MONGO_URI = 'mongodb://localhost:27017/my-new-blog';
@@ -47,7 +47,7 @@ app.get('/api/posts/:id', async (req, res) => {
         const post = await Post.findById(req.params.id)
                                .populate({
                                    path: 'comments',
-                                   options: { sort: { 'publishDate': -1 } }, // 让评论按时间倒序
+                                   options: { sort: { 'publishDate': -1 } },
                                    populate: { path: 'parentComment' }
                                });
         if (!post) {
@@ -59,41 +59,52 @@ app.get('/api/posts/:id', async (req, res) => {
     }
 });
 
-// **--- 新增API 3：创建新评论 ---**
+// API 3：创建新评论
 app.post('/api/posts/:id/comments', async (req, res) => {
     try {
-        // 1. 找到该评论所属的文章
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: '文章未找到' });
         }
-
-        // 2. 从请求体中获取评论数据
         const { author, content } = req.body;
         if (!author || !content) {
             return res.status(400).json({ message: '作者和内容不能为空' });
         }
-
-        // 3. 创建一个新的评论实例
         const newComment = new Comment({
             post: post._id,
             author: author,
             content: content,
             publishDate: new Date()
         });
-
-        // 4. 保存新评论到数据库
         await newComment.save();
-
-        // 5. 将新评论的ID添加到对应文章的comments数组中
         post.comments.push(newComment._id);
         await post.save();
-
-        // 6. 将新创建的评论返回给前端，以便立即显示
         res.status(201).json(newComment);
-
     } catch (error) {
         res.status(500).json({ message: '创建评论失败', error: error });
+    }
+});
+
+// **--- 新增API 4：点赞文章 ---**
+app.post('/api/posts/:id/like', async (req, res) => {
+    try {
+        // 1. 找到文章
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ message: '文章未找到' });
+        }
+
+        // 2. 将likes字段加1
+        post.likes += 1;
+
+        // 3. 保存更新后的文章
+        await post.save();
+
+        // 4. 返回更新后的文章（特别是新的点赞数）
+        res.status(200).json(post);
+
+    } catch (error) {
+        res.status(500).json({ message: '点赞失败', error: error });
     }
 });
 
