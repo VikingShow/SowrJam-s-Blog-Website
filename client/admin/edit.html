@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑文章 - 我的代码书卷</title>
+    <title>编辑文章 - SowrJam :: Log</title>
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-    <style>
-        /* EasyMDE 编辑器样式微调 */
-        .editor-toolbar, .EasyMDEContainer { border-color: #d1d5db; }
-        .CodeMirror { border-color: #d1d5db !important; background-color: #ffffff; }
-    </style>
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
-            <h1 id="edit-page-title">创建新文章</h1>
+            <h1 id="edit-page-title">&gt; 创建新文章</h1>
         </header>
 
         <main>
@@ -25,27 +20,27 @@
                     <input type="hidden" id="post-id" name="id">
 
                     <div class="form-group">
-                        <label for="title" class="form-label">Title</label>
+                        <label for="title" class="form-label">标题:</label>
                         <input type="text" id="title" name="title" class="form-input" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="md-upload" class="form-label">上传 .md 文件</label>
+                        <label for="md-upload" class="form-label">上传 .md 文件:</label>
                         <input type="file" id="md-upload" accept=".md,.markdown" class="form-input">
                     </div>
 
                     <div class="form-group">
-                        <label for="content-editor" class="form-label">Content</label>
+                        <label for="content-editor" class="form-label">内容:</label>
                         <textarea id="content-editor"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="tags" class="form-label">Tags (用英文逗号 , 分隔)</label>
+                        <label for="tags" class="form-label">标签 (用英文逗号 , 分隔):</label>
                         <input type="text" id="tags" name="tags" class="form-input">
                     </div>
 
                     <div class="form-group">
-                        <label for="status" class="form-label">Status</label>
+                        <label for="status" class="form-label">状态:</label>
                         <select id="status" name="status" class="form-select">
                             <option value="publish">发布</option>
                             <option value="draft">草稿</option>
@@ -54,14 +49,13 @@
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">保存文章</button>
-                        <a href="index.html" class="btn-cancel">取消</a>
                     </div>
                 </form>
             </div>
         </main>
         
         <footer class="admin-footer">
-             <a href="../index.html" target="_blank">← 返回博客前台</a>
+             <a href="index.html">&lt; 返回列表</a>
         </footer>
     </div>
     
