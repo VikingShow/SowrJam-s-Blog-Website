@@ -4,8 +4,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap');
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes typing { from { width: 0 } to { width: 100% } }
-@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #2563eb; } }
+
+/* **修改：使用新的光标闪烁动画** */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
 
 /* 2. 基础与变量设置 */
 :root {
@@ -41,23 +45,27 @@ body {
     margin-bottom: 4rem;
     padding-bottom: 2rem;
 }
-.blog-header .title {
+.blog-header .title, .post-header .title {
     display: inline-block;
     font-family: 'Source Code Pro', monospace;
     font-size: 2.5rem;
     font-weight: 600;
     color: var(--heading-color);
-    border-right: .15em solid var(--accent-color);
-    white-space: nowrap;
-    overflow: hidden;
-    margin: 0 auto;
     letter-spacing: 0.05em;
-    animation: typing 2.5s steps(15, end), blink-caret .75s step-end infinite;
+    min-height: 1.2em; /* 防止布局在动画时跳动 */
 }
 .blog-header .subtitle {
     margin-top: 1rem;
     color: #6b7280;
     font-family: 'Inter', sans-serif;
+}
+
+/* **新增：打字机光标样式** */
+.typing-cursor {
+    display: inline-block;
+    animation: blink 1s infinite;
+    color: var(--accent-color);
+    margin-left: 2px;
 }
 
 /* 4. 标签云 */
@@ -145,7 +153,6 @@ body {
 }
 
 /* 6. 单篇文章页 */
-.post-header .title { font-size: 2.5rem; }
 .post-header .post-tags { margin-top: 1rem; }
 .post-content { font-size: 1.125rem; line-height: 1.8; }
 .post-content img {

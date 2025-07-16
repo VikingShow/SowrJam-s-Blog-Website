@@ -3,6 +3,12 @@
 const API_BASE_URL = '/api';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 为主页标题也添加新的字符动画
+    const mainTitle = document.querySelector('.blog-header .title');
+    if (mainTitle) {
+        applyTypingEffect(mainTitle);
+    }
+
     if (document.getElementById('posts-list')) {
         loadPostsList();
         loadTags();
@@ -10,6 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSinglePost();
     }
 });
+
+// 更可靠的JavaScript驱动的打字机效果函数
+function applyTypingEffect(element) {
+    if (!element || !element.textContent) return;
+    
+    const originalText = element.textContent.trim();
+    element.innerHTML = ''; // 清空元素内容
+    element.style.opacity = 1; // 确保容器可见
+
+    // 创建一个用于显示文本的节点和一个光标节点
+    const textNode = document.createTextNode('');
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    cursor.textContent = '▋'; // 使用一个方块字符作为光标
+
+    element.appendChild(textNode);
+    element.appendChild(cursor);
+
+    let i = 0;
+    const typingInterval = setInterval(() => {
+        if (i < originalText.length) {
+            // 逐一添加字符
+            textNode.nodeValue += originalText.charAt(i);
+            i++;
+        } else {
+            // **修改：打字结束后，只清除定时器，不再移除光标**
+            clearInterval(typingInterval);
+        }
+    }, 120); // 打字速度 (毫秒)
+}
+
 
 async function loadPostsList(tag = null) {
     const postsListContainer = document.getElementById('posts-list');
@@ -72,8 +109,13 @@ async function loadSinglePost() {
         if (!response.ok) throw new Error('网络响应错误');
         const post = await response.json();
 
+        const titleElement = document.getElementById('post-title');
+        titleElement.textContent = post.title;
         document.title = `${post.title} - 我的代码书卷`;
-        document.getElementById('post-title').textContent = post.title;
+
+        // 为文章标题应用新的打字机效果
+        applyTypingEffect(titleElement);
+        
         document.getElementById('post-date').textContent = `发布于 ${new Date(post.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
         document.getElementById('post-content').innerHTML = post.content;
         
@@ -168,7 +210,6 @@ function addCommentToDOM(comment, isNew = false) {
     }
     const commentDate = new Date(comment.publishDate).toLocaleString('zh-CN', { dateStyle: 'medium', timeStyle: 'short' });
     
-    // **修改：使用更精致的HTML结构**
     const commentElement = document.createElement('div');
     commentElement.className = 'comment';
     commentElement.innerHTML = `
@@ -182,10 +223,8 @@ function addCommentToDOM(comment, isNew = false) {
     `;
     
     if (isNew) {
-        // 如果是新评论，添加到列表顶部
         commentsList.prepend(commentElement);
     } else {
-        // 如果是加载的旧评论，追加到列表末尾
         commentsList.appendChild(commentElement);
     }
 }
