@@ -26,18 +26,36 @@
                     <h1 id="post-title" class="text-4xl font-bold mb-4 article-title">正在加载...</h1>
                     <p id="post-date" class="text-gray-500 text-sm"></p>
                 </div>
-
-                <!-- 文章正文将由JS加载 -->
                 <div id="post-content" class="article-body"></div>
             </article>
 
-            <!-- 分隔符 -->
             <div class="my-16 border-t border-gray-200"></div>
 
-            <!-- 新增：评论区容器 -->
+            <!-- 评论区 -->
             <section id="comments-section">
                 <p class="text-gray-500">正在加载评论...</p>
             </section>
+
+            <!-- 新增：评论表单 -->
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold mb-6 article-title font-code">发表评论</h3>
+                <form id="comment-form">
+                    <div class="mb-4">
+                        <label for="comment-author" class="block text-gray-700 text-sm font-bold mb-2">你的名字:</label>
+                        <input type="text" id="comment-author" name="author" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="comment-content" class="block text-gray-700 text-sm font-bold mb-2">评论内容:</label>
+                        <textarea id="comment-content" name="content" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            提交评论
+                        </button>
+                    </div>
+                </form>
+                <div id="comment-message" class="mt-4"></div>
+            </div>
 
         </main>
 
@@ -46,7 +64,6 @@
         </footer>
     </div>
     
-    <!-- 只引入我们自己的JavaScript文件 -->
     <script src="js/main.js"></script>
 </body>
 </html>
