@@ -3,10 +3,12 @@
 const express = require('express');
 const cors = require('cors');
 const marked = require('marked');
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+
 const { sequelize, Post, Comment, Tag } = require('./database');
 const { Op } = require('sequelize');
-const path = require('path'); // 引入path模块
-const multer = require('multer'); // 引入multer模块
 
 const app = express();
 const PORT = 3000;
@@ -15,18 +17,23 @@ app.use(cors());
 app.use(express.json());
 
 // --- 图片上传配置 ---
+const UPLOADS_DIR = path.join(__dirname, '..', 'client', 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    console.log(`✅ Uploads directory created at: ${UPLOADS_DIR}`);
+}
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // 将图片保存到前端可以访问的uploads目录
-        cb(null, path.join(__dirname, '..', 'client', 'uploads'));
+        cb(null, UPLOADS_DIR);
     },
     filename: function (req, file, cb) {
-        // 创建一个独一无二的文件名，防止重名覆盖
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });
+
 
 // --- 辅助函数：处理文章的标签关联 ---
 async function handlePostTags(post, tagsString) {
@@ -91,14 +98,10 @@ app.delete('/api/admin/posts/:id', async (req, res) => { try { const post = awai
 // (后台) 标签管理API
 app.get('/api/admin/tags', async (req, res) => { try { const tags = await Tag.findAll({ order: [['name', 'ASC']] }); res.json(tags); } catch (error) { res.status(500).json({ message: '获取标签列表失败', error: error.message }); } });
 app.post('/api/admin/tags', async (req, res) => { try { const { name } = req.body; if (!name) return res.status(400).json({ message: '标签名不能为空' }); const [tag, created] = await Tag.findOrCreate({ where: { name: name.trim() } }); res.status(created ? 201 : 200).json(tag); } catch (error) { res.status(500).json({ message: '创建标签失败', error: error.message }); } });
-
-// **修改：重写标签更新逻辑，使其更健壮**
 app.put('/api/admin/tags/:id', async (req, res) => {
     const { name: newName } = req.body;
     const { id: tagId } = req.params;
-    if (!newName || newName.trim() === '') {
-        return res.status(400).json({ message: '新标签名不能为空' });
-    }
+    if (!newName || newName.trim() === '') return res.status(400).json({ message: '新标签名不能为空' });
     try {
         const tagToUpdate = await Tag.findByPk(tagId);
         if (!tagToUpdate) return res.status(404).json({ message: '标签未找到' });
@@ -120,25 +123,13 @@ app.put('/api/admin/tags/:id', async (req, res) => {
         res.status(500).json({ message: '更新标签失败', error: error.message });
     }
 });
+app.delete('/api/admin/tags/:id', async (req, res) => { try { const tagToDelete = await Tag.findByPk(req.params.id); if (!tagToDelete) return res.status(404).json({ message: '标签未找到' }); await tagToDelete.destroy(); res.json({ message: `标签 '${tagToDelete.name}' 已成功删除` }); } catch (error) { res.status(500).json({ message: '删除标签失败', error: error.message }); } });
 
-// **修改：重写标签删除逻辑，使其更健壮**
-app.delete('/api/admin/tags/:id', async (req, res) => {
-    try {
-        const tagToDelete = await Tag.findByPk(req.params.id);
-        if (!tagToDelete) return res.status(404).json({ message: '标签未找到' });
-        await tagToDelete.destroy(); // 关联关系会在中间表中自动被删除
-        res.json({ message: `标签 '${tagToDelete.name}' 已成功删除` });
-    } catch (error) {
-        res.status(500).json({ message: '删除标签失败', error: error.message });
-    }
-});
-
-// **新增：(后台) 图片上传API**
+// (后台) 图片上传API
 app.post('/api/admin/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: '没有上传文件' });
     }
-    // 返回可公开访问的图片URL
     res.json({ url: `/uploads/${req.file.filename}` });
 });
 
