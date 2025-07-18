@@ -22,7 +22,7 @@ body {
 /* 2. 主布局 */
 .admin-wrapper { display: flex; min-height: 100vh; }
 .admin-sidebar { width: 260px; background-color: var(--surface-color); border-right: 1px solid var(--border-color); padding: 2rem 1.5rem; display: flex; flex-direction: column; flex-shrink: 0; }
-.admin-sidebar .logo { font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--heading-color); margin-bottom: 3rem; }
+.admin-sidebar .logo { font-family: 'Source Code Pro', monospace; font-size: 1.5rem; font-weight: 700; color: var(--heading-color); margin-bottom: 3rem; min-height: 1.2em;}
 .admin-sidebar nav a { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.375rem; color: #4b5563; text-decoration: none; margin-bottom: 0.5rem; font-weight: 500; transition: background-color 0.2s, color 0.2s; }
 .admin-sidebar nav a:hover { background-color: #f3f4f6; color: var(--heading-color); }
 .admin-sidebar nav a.active { background-color: var(--accent-color); color: #ffffff; }
@@ -31,7 +31,7 @@ body {
 .admin-sidebar .footer a:hover { text-decoration: underline; }
 .admin-main { flex-grow: 1; padding: 2.5rem; overflow-y: auto; }
 .admin-main header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.admin-main header h1 { font-size: 1.875rem; font-weight: 700; }
+.admin-main header h1 { font-family: 'Source Code Pro', monospace; font-size: 1.875rem; font-weight: 700; }
 
 /* 3. 按钮与通用组件 */
 .btn { display: inline-flex; justify-content: center; align-items: center; padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: background-color 0.2s; }
@@ -78,3 +78,16 @@ body {
 .modal-header h2 { font-size: 1.25rem; font-weight: 600; }
 .modal-body { margin-bottom: 2rem; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+/* **新增：打字机光标样式 (与前台统一)** */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.typing-cursor {
+    display: inline-block;
+    animation: blink 1s infinite;
+    color: var(--accent-color);
+    margin-left: 2px;
+}

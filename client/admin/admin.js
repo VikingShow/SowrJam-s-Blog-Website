@@ -7,6 +7,11 @@ let allTagsCache = [];
 
 // --- 页面加载逻辑 ---
 document.addEventListener('DOMContentLoaded', () => {
+    const adminLogo = document.querySelector('.admin-sidebar .logo');
+    if (adminLogo) {
+        applyTypingEffect(adminLogo);
+    }
+
     const pageId = document.body.id;
     if (document.getElementById('admin-posts-table-body')) {
         loadAdminPosts();
@@ -271,4 +276,33 @@ async function handleFormSubmit(event, easyMDE) {
         if (!response.ok) throw new Error('保存失败');
         window.location.href = 'index.html';
     } catch (error) { console.error('保存文章失败:', error); alert('保存失败，请检查控制台信息。'); }
+}
+
+// **新增：从前台复制过来的打字机效果函数**
+function applyTypingEffect(element) {
+    if (!element || !element.textContent) return;
+    
+    const originalText = element.textContent.trim();
+    element.innerHTML = ''; // 清空元素内容
+    element.style.opacity = 1; // 确保容器可见
+
+    const textNode = document.createTextNode('');
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    cursor.textContent = '▋';
+
+    element.appendChild(textNode);
+    element.appendChild(cursor);
+
+    let i = 0;
+    const typingInterval = setInterval(() => {
+        if (i < originalText.length) {
+            // 逐一添加字符
+            textNode.nodeValue += originalText.charAt(i);
+            i++;
+        } else {
+            // **修改：打字结束后，只清除定时器，不再移除光标**
+            clearInterval(typingInterval);
+        }
+    }, 120); // 打字速度 (毫秒)
 }
