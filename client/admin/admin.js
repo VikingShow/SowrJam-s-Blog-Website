@@ -2,27 +2,63 @@
 
 const API_BASE_URL = '/api/admin';
 
+// --- 全局状态 ---
+let allTagsCache = [];
+
+// --- 页面加载逻辑 ---
 document.addEventListener('DOMContentLoaded', () => {
-    const postsTable = document.getElementById('admin-posts-table-body');
-    if (postsTable) {
+    const pageId = document.body.id;
+    if (document.getElementById('admin-posts-table-body')) {
         loadAdminPosts();
-    }
-
-    const tagsTable = document.getElementById('admin-tags-table-body');
-    if (tagsTable) {
+    } else if (document.getElementById('admin-tags-table-body')) {
         loadAdminTags();
-    }
-    
-    const addTagForm = document.getElementById('add-tag-form');
-    if (addTagForm) {
-        addTagForm.addEventListener('submit', handleAddTag);
-    }
-
-    const editForm = document.getElementById('edit-form');
-    if (editForm) {
+    } else if (document.getElementById('edit-form')) {
         initializeEditPage();
     }
 });
+
+// --- 模态框 (Modal) 辅助函数 ---
+function showModal({ title, body, onConfirm, onCancel, confirmText = '确认', cancelText = '取消', danger = false }) {
+    const modalContainer = document.getElementById('modal-container');
+    const modalHTML = `
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                </div>
+                <div class="modal-body">${body}</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="modal-cancel">${cancelText}</button>
+                    <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="modal-confirm">${confirmText}</button>
+                </div>
+            </div>
+        </div>
+    `;
+    modalContainer.innerHTML = modalHTML;
+    const overlay = modalContainer.querySelector('.modal-overlay');
+    
+    // 延迟一帧添加 'visible' class 以触发CSS过渡
+    requestAnimationFrame(() => {
+        overlay.classList.add('visible');
+    });
+
+    const closeModal = () => {
+        overlay.classList.remove('visible');
+        setTimeout(() => { modalContainer.innerHTML = ''; }, 300); // 等待动画结束后移除
+    };
+
+    document.getElementById('modal-confirm').onclick = () => {
+        if (onConfirm) onConfirm();
+        closeModal();
+    };
+    document.getElementById('modal-cancel').onclick = () => {
+        if (onCancel) onCancel();
+        closeModal();
+    };
+    overlay.onclick = (e) => {
+        if (e.target === overlay) closeModal();
+    };
+}
 
 // --- 文章管理 ---
 async function loadAdminPosts() {
@@ -48,23 +84,29 @@ async function loadAdminPosts() {
         });
     } catch (error) { console.error('加载文章列表失败:', error); }
 }
-async function handleDeletePost(id, title) {
-    if (confirm(`你确定要删除文章 "${title}" 吗？此操作不可撤销。`)) {
-        try {
-            await fetch(`${API_BASE_URL}/posts/${id}`, { method: 'DELETE' });
-            loadAdminPosts();
-        } catch (error) { console.error('删除文章失败:', error); alert('删除失败，请稍后重试。'); }
-    }
+function handleDeletePost(id, title) {
+    showModal({
+        title: '删除文章',
+        body: `<p>你确定要删除文章 <strong>"${title}"</strong> 吗？此操作不可撤销。</p>`,
+        confirmText: '删除',
+        danger: true,
+        onConfirm: async () => {
+            try {
+                await fetch(`${API_BASE_URL}/posts/${id}`, { method: 'DELETE' });
+                loadAdminPosts();
+            } catch (error) { console.error('删除文章失败:', error); alert('删除失败。'); }
+        }
+    });
 }
 
 // --- 标签管理 ---
 async function loadAdminTags() {
     try {
         const response = await fetch(`${API_BASE_URL}/tags`);
-        const tags = await response.json();
+        allTagsCache = await response.json();
         const tableBody = document.getElementById('admin-tags-table-body');
         tableBody.innerHTML = '';
-        tags.forEach(tag => {
+        allTagsCache.forEach(tag => {
             const row = `
                 <tr>
                     <td>${tag.name}</td>
@@ -77,75 +119,78 @@ async function loadAdminTags() {
         });
     } catch (error) { console.error('加载标签列表失败:', error); }
 }
-async function handleAddTag(event) {
-    event.preventDefault();
-    const input = document.getElementById('new-tag-name');
-    const name = input.value.trim();
-    if (name) {
-        try {
-            await fetch(`${API_BASE_URL}/tags`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            });
-            input.value = '';
-            loadAdminTags();
-        } catch (error) { console.error('创建标签失败:', error); alert('创建失败。'); }
-    }
+function handleAddTag() {
+    showModal({
+        title: '创建新标签',
+        body: `
+            <div class="form-group">
+                <label for="modal-tag-name" class="form-label">标签名</label>
+                <input type="text" id="modal-tag-name" class="form-input" required>
+            </div>`,
+        confirmText: '创建',
+        onConfirm: async () => {
+            const name = document.getElementById('modal-tag-name').value.trim();
+            if (name) {
+                try {
+                    await fetch(`${API_BASE_URL}/tags`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    });
+                    loadAdminTags();
+                } catch (error) { console.error('创建标签失败:', error); alert('创建失败。'); }
+            }
+        }
+    });
+    // 自动聚焦到输入框
+    setTimeout(() => document.getElementById('modal-tag-name').focus(), 100);
 }
-async function handleEditTag(id, oldName) {
-    const newName = prompt(`正在重命名标签 "${oldName}":`, oldName);
-    if (newName && newName.trim() !== '' && newName !== oldName) {
-        try {
-            await fetch(`${API_BASE_URL}/tags/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newName.trim() })
-            });
-            loadAdminTags();
-        } catch (error) { console.error('重命名标签失败:', error); alert('重命名失败。'); }
-    }
+function handleEditTag(id, oldName) {
+    showModal({
+        title: '重命名标签',
+        body: `
+            <div class="form-group">
+                <label for="modal-tag-name" class="form-label">新标签名</label>
+                <input type="text" id="modal-tag-name" class="form-input" value="${oldName}" required>
+            </div>`,
+        confirmText: '更新',
+        onConfirm: async () => {
+            const newName = document.getElementById('modal-tag-name').value.trim();
+            if (newName && newName !== oldName) {
+                try {
+                    await fetch(`${API_BASE_URL}/tags/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: newName })
+                    });
+                    loadAdminTags();
+                } catch (error) { console.error('重命名标签失败:', error); alert('重命名失败。'); }
+            }
+        }
+    });
+    setTimeout(() => document.getElementById('modal-tag-name').focus(), 100);
 }
-async function handleDeleteTag(id, name) {
-    if (confirm(`你确定要删除标签 "${name}" 吗？这将会从所有使用该标签的文章中移除它。`)) {
-        try {
-            await fetch(`${API_BASE_URL}/tags/${id}`, { method: 'DELETE' });
-            loadAdminTags();
-        } catch (error) { console.error('删除标签失败:', error); alert('删除失败。'); }
-    }
+function handleDeleteTag(id, name) {
+    showModal({
+        title: '删除标签',
+        body: `<p>你确定要删除标签 <strong>"${name}"</strong> 吗？这将会从所有使用该标签的文章中移除它。</p>`,
+        confirmText: '删除',
+        danger: true,
+        onConfirm: async () => {
+            try {
+                await fetch(`${API_BASE_URL}/tags/${id}`, { method: 'DELETE' });
+                loadAdminTags();
+            } catch (error) { console.error('删除标签失败:', error); alert('删除失败。'); }
+        }
+    });
 }
 
 // --- 文章编辑器 ---
 async function initializeEditPage() {
-    const easyMDE = new EasyMDE({ 
-        element: document.getElementById('content-editor'),
-        spellChecker: false,
-        maxHeight: "400px",
-        // **新增：配置图片上传功能**
-        uploadImage: true,
-        imageUploadFunction: async (file, onSuccess, onError) => {
-            const formData = new FormData();
-            formData.append('image', file);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/upload`, {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    throw new Error('上传失败');
-                }
-
-                const result = await response.json();
-                onSuccess(result.url); // 调用成功回调，将图片URL插入编辑器
-            } catch (error) {
-                console.error('图片上传失败:', error);
-                onError('图片上传失败: ' + error.message); // 调用失败回调
-            }
-        },
-    });
-
+    // 1. 初始化编辑器
+    const easyMDE = new EasyMDE({ element: document.getElementById('content-editor'), spellChecker: false, maxHeight: "400px", toolbar: ["bold", "italic", "heading", "|", "quote", "code", "unordered-list", "ordered-list", "|", "link", "image", "|", "preview", "side-by-side", "fullscreen"] });
+    
+    // 2. 处理MD文件上传
     const mdUploadInput = document.getElementById('md-upload');
     mdUploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -154,12 +199,13 @@ async function initializeEditPage() {
         reader.onload = (e) => { easyMDE.value(e.target.result); };
         reader.readAsText(file);
     });
+
+    // 3. 加载已有文章数据 (如果是编辑模式)
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('id');
     if (postId) {
         document.getElementById('edit-page-title').textContent = '编辑文章';
         const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
-        if (!response.ok) throw new Error(`获取文章失败: ${response.statusText}`);
         const post = await response.json();
         document.getElementById('post-id').value = post.id;
         document.getElementById('title').value = post.title;
@@ -167,8 +213,50 @@ async function initializeEditPage() {
         document.getElementById('tags').value = (post.Tags || []).map(tag => tag.name).join(', ');
         document.getElementById('status').value = post.status;
     }
+
+    // 4. 初始化标签自动补全
+    const tagsInput = document.getElementById('tags');
+    const suggestionsContainer = document.getElementById('tag-suggestions');
+    
+    // 先获取所有标签
+    await fetch(`${API_BASE_URL}/tags`).then(res => res.json()).then(tags => {
+        allTagsCache = tags.map(t => t.name);
+    });
+
+    tagsInput.addEventListener('input', () => {
+        const currentTags = tagsInput.value.split(',').map(t => t.trim());
+        const currentTagFragment = currentTags.pop();
+        
+        if (currentTagFragment) {
+            const suggestions = allTagsCache.filter(tag => 
+                tag.toLowerCase().startsWith(currentTagFragment.toLowerCase()) && 
+                !currentTags.includes(tag)
+            );
+            renderSuggestions(suggestions, currentTags, currentTagFragment);
+        } else {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
+
+    function renderSuggestions(suggestions, existingTags, currentFragment) {
+        suggestionsContainer.innerHTML = '';
+        suggestions.forEach(suggestion => {
+            const div = document.createElement('div');
+            div.textContent = suggestion;
+            div.onclick = () => {
+                const newTags = [...existingTags, suggestion];
+                tagsInput.value = newTags.join(', ') + ', ';
+                suggestionsContainer.innerHTML = '';
+                tagsInput.focus();
+            };
+            suggestionsContainer.appendChild(div);
+        });
+    }
+
+    // 5. 绑定表单提交事件
     document.getElementById('edit-form').addEventListener('submit', (event) => { handleFormSubmit(event, easyMDE); });
 }
+
 async function handleFormSubmit(event, easyMDE) {
     event.preventDefault();
     const form = event.target;

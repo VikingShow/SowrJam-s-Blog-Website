@@ -1,15 +1,16 @@
 /* client/admin/admin.css */
 
-/* 1. 引入字体与变量 (与前台统一) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap');
+/* 1. 引入字体与变量 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
     --bg-color: #f9fafb;
     --text-color: #374151;
     --heading-color: #111827;
-    --accent-color: #2563eb;
+    --accent-color: #4f46e5;
     --border-color: #e5e7eb;
     --surface-color: #ffffff;
+    --danger-color: #ef4444;
 }
 
 body {
@@ -19,155 +20,61 @@ body {
 }
 
 /* 2. 主布局 */
-.admin-wrapper {
-    display: flex;
-    min-height: 100vh;
-}
+.admin-wrapper { display: flex; min-height: 100vh; }
+.admin-sidebar { width: 260px; background-color: var(--surface-color); border-right: 1px solid var(--border-color); padding: 2rem 1.5rem; display: flex; flex-direction: column; flex-shrink: 0; }
+.admin-sidebar .logo { font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--heading-color); margin-bottom: 3rem; }
+.admin-sidebar nav a { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.375rem; color: #4b5563; text-decoration: none; margin-bottom: 0.5rem; font-weight: 500; transition: background-color 0.2s, color 0.2s; }
+.admin-sidebar nav a:hover { background-color: #f3f4f6; color: var(--heading-color); }
+.admin-sidebar nav a.active { background-color: var(--accent-color); color: #ffffff; }
+.admin-sidebar .footer { margin-top: auto; text-align: center; font-size: 0.875rem; }
+.admin-sidebar .footer a { color: #6b7280; text-decoration: none; }
+.admin-sidebar .footer a:hover { text-decoration: underline; }
+.admin-main { flex-grow: 1; padding: 2.5rem; overflow-y: auto; }
+.admin-main header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.admin-main header h1 { font-size: 1.875rem; font-weight: 700; }
 
-/* 3. 侧边栏导航 */
-.admin-sidebar {
-    width: 260px;
-    background-color: var(--surface-color);
-    border-right: 1px solid var(--border-color);
-    padding: 2rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-.admin-sidebar .logo {
-    font-family: 'Source Code Pro', monospace;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--heading-color);
-    margin-bottom: 3rem;
-}
-.admin-sidebar nav a {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-    color: #4b5563;
-    text-decoration: none;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
-}
-.admin-sidebar nav a:hover {
-    background-color: #f3f4f6;
-    color: var(--heading-color);
-}
-.admin-sidebar nav a.active {
-    background-color: var(--accent-color);
-    color: #ffffff;
-}
-.admin-sidebar .footer {
-    margin-top: auto;
-    text-align: center;
-    font-size: 0.875rem;
-}
-.admin-sidebar .footer a {
-    color: #6b7280;
-    text-decoration: none;
-}
-.admin-sidebar .footer a:hover {
-    text-decoration: underline;
-}
+/* 3. 按钮与通用组件 */
+.btn { display: inline-flex; justify-content: center; align-items: center; padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: background-color 0.2s; }
+.btn-primary { background-color: var(--accent-color); color: #ffffff; }
+.btn-primary:hover { background-color: #4338ca; }
+.btn-danger { background-color: var(--danger-color); color: #ffffff; }
+.btn-danger:hover { background-color: #dc2626; }
+.btn-secondary { background-color: #e5e7eb; color: #374151; }
+.btn-secondary:hover { background-color: #d1d5db; }
+.card { background-color: var(--surface-color); border-radius: 0.5rem; border: 1px solid var(--border-color); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); padding: 2rem; }
 
-/* 4. 主内容区 */
-.admin-main {
-    flex-grow: 1;
-    padding: 2.5rem;
-    overflow-y: auto;
-}
-.admin-main header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-.admin-main header h1 {
-    font-family: 'Lora', serif;
-    font-size: 1.875rem;
-    font-weight: 700;
-}
-.btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.625rem 1.25rem;
-    border-radius: 0.375rem;
-    font-weight: 600;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.btn-primary {
-    background-color: var(--accent-color);
-    color: #ffffff;
-}
-.btn-primary:hover {
-    background-color: #1d4ed8;
-}
-
-/* 5. 卡片与表格样式 */
-.card {
-    background-color: var(--surface-color);
-    border-radius: 0.5rem;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-    padding: 2rem;
-}
-.admin-table-wrapper {
-    overflow: hidden;
-}
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.admin-table th, .admin-table td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
+/* 4. 表格样式 */
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border-color); }
 .admin-table tbody tr:last-child td { border-bottom: none; }
 .admin-table thead { background-color: #f9fafb; }
 .admin-table th { font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
 .admin-table tbody tr:hover { background-color: #f9fafb; }
-.status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-.status-publish { background-color: #dcfce7; color: #166534; }
-.status-draft { background-color: #fef9c3; color: #854d0e; }
-.action-link { font-weight: 500; color: var(--accent-color); text-decoration: none; margin-right: 1rem; }
+.action-link { font-weight: 500; color: var(--accent-color); text-decoration: none; margin-right: 1rem; cursor: pointer; }
 .action-link:hover { text-decoration: underline; }
-.action-btn { background: none; border: none; cursor: pointer; padding: 0; color: #dc2626; font-weight: 500; }
+.action-btn { background: none; border: none; cursor: pointer; padding: 0; color: var(--danger-color); font-weight: 500; }
 .action-btn:hover { text-decoration: underline; }
 
-/* 6. 表单样式 */
+/* 5. 表单与编辑器 */
 .form-group { margin-bottom: 1.5rem; }
 .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
-.form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
-.form-actions { margin-top: 2rem; display: flex; align-items: center; gap: 1rem; }
-.form-actions .btn-cancel { color: #6b7280; text-decoration: none; }
-.form-actions .btn-cancel:hover { text-decoration: underline; }
+.form-input, .form-select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: border-color 0.2s, box-shadow 0.2s; }
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.4); }
+.editor-toolbar, .EasyMDEContainer, .CodeMirror { border-color: #d1d5db; }
 
-/* 7. 网格布局 */
-.grid { display: grid; }
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-.md\:grid-cols-3 {
-    @media (min-width: 768px) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-.md\:col-span-2 {
-    @media (min-width: 768px) {
-        grid-column: span 2 / span 2;
-    }
-}
-.gap-8 { gap: 2rem; }
+/* 6. 标签自动补全 */
+.autocomplete-container { position: relative; }
+.autocomplete-suggestions { position: absolute; border: 1px solid var(--border-color); background-color: var(--surface-color); z-index: 99; max-height: 150px; overflow-y: auto; width: 100%; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.autocomplete-suggestions div { padding: 0.75rem 1rem; cursor: pointer; }
+.autocomplete-suggestions div:hover { background-color: #f3f4f6; }
+.autocomplete-suggestions .active { background-color: var(--accent-color); color: #ffffff; }
+
+/* 7. 模态框 (Modal) */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+.modal-overlay.visible { opacity: 1; pointer-events: auto; }
+.modal-content { background-color: var(--surface-color); border-radius: 0.5rem; padding: 2rem; width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s ease; }
+.modal-overlay.visible .modal-content { transform: scale(1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.modal-header h2 { font-size: 1.25rem; font-weight: 600; }
+.modal-body { margin-bottom: 2rem; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; }

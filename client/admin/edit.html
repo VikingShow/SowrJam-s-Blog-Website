@@ -8,63 +8,89 @@
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <style>
-        /* EasyMDE 编辑器样式微调 */
-        .editor-toolbar, .EasyMDEContainer { border-color: #d1d5db; }
-        .CodeMirror { border-color: #d1d5db !important; }
+        .editor-toolbar, .EasyMDEContainer, .CodeMirror { border-color: #d1d5db; }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="admin-header">
-            <h1 id="edit-page-title">创建新文章</h1>
-        </header>
-
-        <main>
-            <div class="form-card">
-                <form id="edit-form">
-                    <input type="hidden" id="post-id" name="id">
-
-                    <div class="form-group">
-                        <label for="title" class="form-label">标题</label>
-                        <input type="text" id="title" name="title" class="form-input" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="md-upload" class="form-label">上传 .md 文件</label>
-                        <input type="file" id="md-upload" accept=".md,.markdown" class="form-input">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="content-editor" class="form-label">内容</label>
-                        <textarea id="content-editor"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tags" class="form-label">标签 (用英文逗号 , 分隔)</label>
-                        <input type="text" id="tags" name="tags" class="form-input">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="status" class="form-label">状态</label>
-                        <select id="status" name="status" class="form-select">
-                            <option value="publish">发布</option>
-                            <option value="draft">草稿</option>
-                        </select>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">保存文章</button>
-                        <a href="index.html" class="btn-cancel">取消</a>
-                    </div>
-                </form>
+    <div class="admin-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="admin-sidebar">
+            <div class="logo">MyBlog :: Admin</div>
+            <nav>
+                <a href="index.html" class="active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                    文章管理
+                </a>
+                <a href="tags.html">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12.586 2.586a2 2 0 0 0-2.828 0L2.586 9.757a2 2 0 0 0 0 2.828l7.172 7.172a2 2 0 0 0 2.828 0l7.172-7.172a2 2 0 0 0 0-2.828L12.586 2.586z"></path><line x1="8.5" y1="8.5" x2="8.51" y2="8.51"></line></svg>
+                    标签管理
+                </a>
+            </nav>
+            <div class="footer">
+                <a href="../index.html" target="_blank">查看前台</a>
             </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="admin-main">
+            <header>
+                <h1 id="edit-page-title">创建新文章</h1>
+            </header>
+            
+            <form id="edit-form" class="admin-grid-layout">
+                <input type="hidden" id="post-id" name="id">
+                
+                <!-- 左侧主编辑区 -->
+                <div class="main-content-area">
+                    <div class="card">
+                        <div class="form-group">
+                            <label for="title" class="form-label">标题</label>
+                            <input type="text" id="title" name="title" class="form-input text-lg font-semibold" required>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="form-group">
+                            <label for="content-editor" class="form-label">内容</label>
+                            <textarea id="content-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧发布设置区 -->
+                <div class="sidebar-area">
+                    <div class="card publish-card">
+                        <h2 class="text-lg font-semibold mb-4">发布设置</h2>
+                        <div class="form-group">
+                            <label for="status" class="form-label">状态</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="publish">发布</option>
+                                <option value="draft">草稿</option>
+                            </select>
+                        </div>
+                        <div class="publish-actions">
+                            <button type="submit" class="btn btn-primary w-full">保存文章</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="form-group autocomplete-container">
+                            <label for="tags" class="form-label">标签 (用英文逗号 , 分隔)</label>
+                            <input type="text" id="tags" name="tags" class="form-input">
+                            <div id="tag-suggestions" class="autocomplete-suggestions"></div>
+                        </div>
+                    </div>
+                     <div class="card">
+                        <div class="form-group">
+                            <label for="md-upload" class="form-label">上传 .md 文件</label>
+                            <input type="file" id="md-upload" accept=".md,.markdown" class="form-input">
+                        </div>
+                    </div>
+                </div>
+            </form>
         </main>
-        
-        <footer class="admin-footer">
-             <a href="index.html">← 返回列表</a>
-        </footer>
     </div>
     
+    <!-- **修改：确保模态框容器存在** -->
+    <div id="modal-container"></div>
     <script src="admin.js"></script>
 </body>
 </html>

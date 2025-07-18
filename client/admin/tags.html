@@ -30,38 +30,27 @@
         <main class="admin-main">
             <header>
                 <h1>标签管理</h1>
+                <button onclick="handleAddTag()" class="btn btn-primary">+ 创建新标签</button>
             </header>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- 标签列表 -->
-                <div class="md:col-span-2 card">
-                    <div class="admin-table-wrapper">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>标签名</th>
-                                    <th class="text-right">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-tags-table-body">
-                                <tr><td colspan="2" class="text-center py-10">正在加载标签...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- 新增标签表单 -->
-                <div class="card">
-                    <h2 class="text-lg font-semibold mb-4">新增标签</h2>
-                    <form id="add-tag-form">
-                        <div class="form-group">
-                            <label for="new-tag-name" class="form-label">标签名</label>
-                            <input type="text" id="new-tag-name" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full">创建标签</button>
-                    </form>
+            <div class="card">
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>标签名</th>
+                                <th class="text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-tags-table-body">
+                            <tr><td colspan="2" class="text-center py-10">正在加载标签...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
     </div>
+    <!-- **修改：确保模态框容器存在** -->
+    <div id="modal-container"></div>
     <script src="admin.js"></script>
 </body>
 </html>
